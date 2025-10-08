@@ -81,6 +81,9 @@
         </app-metronome>
         
         <div class="timer-controls">
+          <button type="button" class="control-btn time-adjust" (click)="subtractTime()">
+            <span>−10s</span>
+          </button>
           <button type="button" *ngIf="!isPaused()" class="control-btn pause" (click)="pauseTimer()">
             <span>⏸</span>
             <span>Pause</span>
@@ -92,6 +95,9 @@
           <button type="button" class="control-btn restart" (click)="restartTimer()">
             <span>↻</span>
             <span>Restart</span>
+          </button>
+          <button type="button" class="control-btn time-adjust" (click)="addTime()">
+            <span>+10s</span>
           </button>
           <button type="button" class="control-btn skip" (click)="skipExercise()">
             <span>⏭</span>
@@ -118,9 +124,15 @@
             </button>
           </div>
         </div>
-        <button type="button" class="skip-link" (click)="skipExercise()">
-          Skip this exercise →
-        </button>
+        <div class="bottom-actions">
+          <button type="button" class="secondary btn-medium repeat-btn" (click)="repeatExercise()">
+            <span>🔁</span>
+            <span>Repeat Exercise</span>
+          </button>
+          <button type="button" class="skip-link" (click)="skipExercise()">
+            Skip this exercise →
+          </button>
+        </div>
       </div>
     </div>
 

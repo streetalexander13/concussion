@@ -161,8 +161,19 @@ export class MetronomeComponent implements OnDestroy {
     this.stop();
   }
 
+  private initAudioContext() {
+    if (!this.audioCtx) {
+      this.audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    // Resume if suspended (iOS requirement)
+    if (this.audioCtx.state === 'suspended') {
+      this.audioCtx.resume();
+    }
+  }
+
   private start() {
     this.stop();
+    this.initAudioContext(); // Initialize audio on start
     const intervalMs = Math.floor(60000 / this.bpm());
     
     this.interval = window.setInterval(() => {
@@ -189,6 +200,11 @@ export class MetronomeComponent implements OnDestroy {
         this.audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
       
+      // Resume audio context for iOS/mobile
+      if (this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume();
+      }
+      
       const osc = this.audioCtx.createOscillator();
       const gain = this.audioCtx.createGain();
       
@@ -204,7 +220,9 @@ export class MetronomeComponent implements OnDestroy {
       gain.gain.exponentialRampToValueAtTime(0.3, now + 0.01);
       gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
       osc.stop(now + 0.1);
-    } catch {}
+    } catch (e) {
+      console.log('Audio playback error:', e);
+    }
   }
 
   increaseBpm() {

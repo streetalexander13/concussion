@@ -122,6 +122,14 @@ export class StartComponent {
     this.startTimer();
   }
 
+  addTime() {
+    this.timer.update(v => Math.min(60, v + 10));
+  }
+
+  subtractTime() {
+    this.timer.update(v => Math.max(5, v - 10));
+  }
+
 
   private finishTimer() {
     clearInterval(this.exerciseInterval);
@@ -169,6 +177,11 @@ export class StartComponent {
       this.currentExerciseIndex.set(nextIndex);
       this.step.set('interstitial');
     }
+  }
+
+  repeatExercise() {
+    console.log('Repeat exercise');
+    this.step.set('interstitial');
   }
 
   skipExercise() {
