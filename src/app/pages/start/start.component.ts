@@ -1,4 +1,4 @@
-import { Component, computed, effect, signal, ViewChild } from '@angular/core';
+import { Component, computed, effect, signal, ViewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { DataService } from '../../core/data.service';
@@ -13,7 +13,7 @@ import { ExerciseAnimationComponent } from '../../components/exercise-animation/
   templateUrl: './start.component.html',
   styleUrl: './start.component.css',
 })
-export class StartComponent {
+export class StartComponent implements OnDestroy {
   @ViewChild(MetronomeComponent) metronome?: MetronomeComponent;
   
   session = signal<DaySession | null>(null);
@@ -28,6 +28,7 @@ export class StartComponent {
   advice = signal<string | null>(null);
   currentBpm = signal(55);
   loading = signal(true);
+  showDosage = signal(false);
 
   currentExercise = computed<ExerciseConfig | null>(() => {
     const s = this.session();
@@ -110,13 +111,54 @@ export class StartComponent {
       console.error('No exercise found');
       return;
     }
+    
+    // Unlock audio context for iOS - must be done synchronously in user gesture handler
+    // Metronome is always rendered, so ViewChild should be available
+    if (this.metronome) {
+      console.log('Unlocking audio...');
+      this.metronome.unlockAudio();
+    } else {
+      console.warn('Metronome not available yet');
+    }
+    
     this.step.set('exercise');
+    this.startCountdown();
+  }
+
+  private startCountdown() {
+    // Clear any existing countdown
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
+    
     this.countdown.set(3);
     this.timer.set(30); // Reset timer
-    const countdownInt = setInterval(() => {
+    
+    // Play countdown beep immediately for 3
+    if (this.metronome) {
+      console.log('Playing countdown beep for 3');
+      this.metronome.playCountdownBeep();
+    } else {
+      console.error('Metronome not available for countdown beep');
+    }
+    
+    this.countdownInterval = setInterval(() => {
       this.countdown.update(v => v - 1);
+      
+      // Play beep for 2 and 1
+      if (this.countdown() > 0 && this.metronome) {
+        console.log('Playing countdown beep for', this.countdown());
+        this.metronome.playCountdownBeep();
+      }
+      
       if (this.countdown() <= 0) {
-        clearInterval(countdownInt);
+        clearInterval(this.countdownInterval);
+        this.countdownInterval = undefined;
+        // Play start sound when timer begins
+        if (this.metronome) {
+          console.log('Playing start sound');
+          this.metronome.playStartSound();
+        }
         this.startTimer();
       }
     }, 1000);
@@ -124,6 +166,7 @@ export class StartComponent {
 
   private metronomeInterval: any;
   private exerciseInterval: any;
+  private countdownInterval: any;
 
   private startTimer() {
     this.timer.set(30);
@@ -153,13 +196,18 @@ export class StartComponent {
     this.isPaused.set(false);
     const ex = this.currentExercise();
     if (ex?.hasMetronome) {
+      // Unlock audio again in case it was suspended
+      if (this.metronome) {
+        this.metronome.unlockAudio();
+      }
       this.metronomeOn.set(true);
     }
   }
 
   restartTimer() {
     this.finishTimer();
-    this.startTimer();
+    // Restart with countdown
+    this.startCountdown();
   }
 
   addTime() {
@@ -175,6 +223,12 @@ export class StartComponent {
     clearInterval(this.exerciseInterval);
     this.metronomeOn.set(false);
     this.isPaused.set(false);
+    
+    // Play finish sound when timer completes
+    if (this.metronome && this.timer() <= 0) {
+      console.log('Playing finish sound');
+      this.metronome.playFinishSound();
+    }
   }
 
   async recordSymptom(worsened: boolean, severity: number = 0) {
@@ -255,6 +309,23 @@ export class StartComponent {
   goToTrack() {
     console.log('Navigate to track');
     this.router.navigate(['/track']);
+  }
+
+  toggleDosage() {
+    this.showDosage.update(v => !v);
+  }
+
+  ngOnDestroy() {
+    // Clean up all intervals
+    if (this.countdownInterval) {
+      clearInterval(this.countdownInterval);
+    }
+    if (this.exerciseInterval) {
+      clearInterval(this.exerciseInterval);
+    }
+    if (this.metronomeInterval) {
+      clearInterval(this.metronomeInterval);
+    }
   }
 }
 

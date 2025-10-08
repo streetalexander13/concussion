@@ -153,12 +153,43 @@ export class MetronomeComponent implements OnDestroy {
   
   private interval?: number;
   private audioCtx?: AudioContext;
+  private isAudioUnlocked = false;
 
   constructor() {
   }
 
   ngOnDestroy() {
     this.stop();
+  }
+
+  // Public method to unlock audio - must be called from a user gesture
+  unlockAudio() {
+    if (!this.audioCtx) {
+      this.audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    
+    // iOS requires audio to be unlocked with a user gesture
+    if (this.audioCtx.state === 'suspended') {
+      this.audioCtx.resume().then(() => {
+        this.isAudioUnlocked = true;
+        console.log('Audio context unlocked');
+      });
+    } else {
+      this.isAudioUnlocked = true;
+    }
+    
+    // Play a silent sound to fully unlock on iOS
+    try {
+      const osc = this.audioCtx.createOscillator();
+      const gain = this.audioCtx.createGain();
+      gain.gain.value = 0;
+      osc.connect(gain);
+      gain.connect(this.audioCtx.destination);
+      osc.start(this.audioCtx.currentTime);
+      osc.stop(this.audioCtx.currentTime + 0.01);
+    } catch (e) {
+      console.log('Silent sound error:', e);
+    }
   }
 
   private initAudioContext() {
@@ -222,6 +253,112 @@ export class MetronomeComponent implements OnDestroy {
       osc.stop(now + 0.1);
     } catch (e) {
       console.log('Audio playback error:', e);
+    }
+  }
+
+  // Play countdown beep (lower tone for 3, 2, 1)
+  playCountdownBeep() {
+    try {
+      if (!this.audioCtx) {
+        this.audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      
+      if (this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume();
+      }
+      
+      const osc = this.audioCtx.createOscillator();
+      const gain = this.audioCtx.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.value = 440; // A4 note - lower than metronome
+      gain.gain.value = 0.0001;
+      
+      osc.connect(gain);
+      gain.connect(this.audioCtx.destination);
+      
+      const now = this.audioCtx.currentTime;
+      osc.start(now);
+      gain.gain.exponentialRampToValueAtTime(0.4, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+      osc.stop(now + 0.2);
+    } catch (e) {
+      console.log('Countdown beep error:', e);
+    }
+  }
+
+  // Play start sound (higher, more energetic)
+  playStartSound() {
+    try {
+      if (!this.audioCtx) {
+        this.audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      
+      if (this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume();
+      }
+      
+      const now = this.audioCtx.currentTime;
+      
+      // Two-tone start sound (ascending)
+      for (let i = 0; i < 2; i++) {
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+        
+        osc.type = 'sine';
+        osc.frequency.value = i === 0 ? 523.25 : 659.25; // C5 then E5
+        gain.gain.value = 0.0001;
+        
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        
+        const startTime = now + (i * 0.15);
+        osc.start(startTime);
+        gain.gain.exponentialRampToValueAtTime(0.5, startTime + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.12);
+        osc.stop(startTime + 0.15);
+      }
+    } catch (e) {
+      console.log('Start sound error:', e);
+    }
+  }
+
+  // Play finish sound (triumphant two-tone)
+  playFinishSound() {
+    try {
+      if (!this.audioCtx) {
+        this.audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      
+      if (this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume();
+      }
+      
+      const now = this.audioCtx.currentTime;
+      
+      // Three-tone finish sound (ascending triumphant)
+      const frequencies = [523.25, 659.25, 783.99]; // C5, E5, G5
+      
+      for (let i = 0; i < frequencies.length; i++) {
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+        
+        osc.type = 'sine';
+        osc.frequency.value = frequencies[i];
+        gain.gain.value = 0.0001;
+        
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+        
+        const startTime = now + (i * 0.12);
+        const duration = i === frequencies.length - 1 ? 0.3 : 0.12;
+        osc.start(startTime);
+        gain.gain.exponentialRampToValueAtTime(0.5, startTime + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration - 0.02);
+        osc.stop(startTime + duration);
+      }
+    } catch (e) {
+      console.log('Finish sound error:', e);
     }
   }
 

@@ -31,6 +31,130 @@
   margin-bottom: 1.5rem;
 }
 
+.dosage-section {
+  margin-bottom: 1.5rem;
+  background: rgba(99, 102, 241, 0.05);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  transition: all 0.3s ease;
+}
+
+.dosage-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary);
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.dosage-toggle:hover {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.dosage-icon {
+  font-size: 1.25rem;
+}
+
+.toggle-arrow {
+  margin-left: auto;
+  transition: transform 0.3s ease;
+  font-size: 0.875rem;
+}
+
+.toggle-arrow.open {
+  transform: rotate(180deg);
+}
+
+.dosage-content {
+  padding: 0 1.25rem 1.5rem;
+  animation: fadeIn 0.3s ease-out;
+  text-align: left;
+}
+
+.dosage-content h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+}
+
+.dosage-content h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.dosage-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dosage-content ul li {
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+  line-height: 1.6;
+  color: var(--text);
+  font-size: 0.9375rem;
+}
+
+.dosage-content ul li::before {
+  content: "•";
+  position: absolute;
+  left: 0.5rem;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.progression-rules li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-left: 0;
+}
+
+.progression-rules li::before {
+  display: none;
+}
+
+.severity-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  min-width: 80px;
+  text-align: center;
+}
+
+.severity-badge.green {
+  background: rgba(16, 185, 129, 0.15);
+  color: #059669;
+}
+
+.severity-badge.yellow {
+  background: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+}
+
+.severity-badge.red {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+}
+
 .card {
   text-align: center;
   animation: fadeIn 0.5s ease-out;
@@ -383,6 +507,47 @@
   gap: 0.5rem;
 }
 
+.metronome-visual-display {
+  margin-top: 1.5rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.metronome-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: rgba(99, 102, 241, 0.05);
+  border-radius: 16px;
+  border: 2px solid rgba(99, 102, 241, 0.1);
+}
+
+.bpm-display {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.beat-indicator {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  opacity: 0.3;
+  transition: all 0.2s;
+}
+
+.beat-indicator.active {
+  color: var(--primary);
+  opacity: 1;
+  animation: beat-pulse 0.3s ease-out;
+}
+
+@keyframes beat-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
 .symptom-check {
   margin-top: 2rem;
   animation: fadeIn 0.5s ease-out;
@@ -507,6 +672,39 @@
   
   .card {
     padding: 1.5rem 1rem;
+  }
+  
+  .dosage-toggle {
+    padding: 0.875rem 1rem;
+    font-size: 0.9375rem;
+  }
+  
+  .dosage-content {
+    padding: 0 1rem 1.25rem;
+  }
+  
+  .dosage-content h3 {
+    font-size: 1rem;
+  }
+  
+  .dosage-content h4 {
+    font-size: 0.9375rem;
+  }
+  
+  .dosage-content ul li {
+    font-size: 0.875rem;
+    padding-left: 1.25rem;
+  }
+  
+  .progression-rules li {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .severity-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.625rem;
+    min-width: 70px;
   }
   
   .emoji-icon {
