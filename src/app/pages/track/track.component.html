@@ -1,0 +1,47 @@
+<section class="track">
+  <header class="top">
+    <button (click)="goPrevMonth()">‹</button>
+    <h2>Track progress</h2>
+    <button (click)="goNextMonth()">›</button>
+  </header>
+
+  <div class="calendar">
+    <div class="day" *ngFor="let d of daysInMonth()" [routerLink]="['/day', d.date]">
+      <div class="date">{{ d.date.slice(-2) }}</div>
+      <div class="status" [class.done]="d.completed" [class.missed]="!d.completed">
+        <span *ngIf="d.completed">✔</span>
+        <span *ngIf="!d.completed">•</span>
+      </div>
+      <div class="time" *ngIf="d.time">{{ d.time }}</div>
+    </div>
+  </div>
+
+  <div class="card spark">
+    <div class="row">
+      <div>
+        <h3>Baseline trend (last 14 days)</h3>
+        <small>Lower is better</small>
+      </div>
+    </div>
+    <app-sparkline [values]="baselineValues()" [width]="600" [height]="60" [min]="0" [max]="10" />
+  </div>
+
+  <div class="settings card">
+    <h3>Reminder time</h3>
+    <div class="row">
+      <label>Weekdays</label>
+      <input type="time" (change)="onTimeChange($event, false)">
+    </div>
+    <div class="row">
+      <label>Weekends</label>
+      <input type="time" (change)="onTimeChange($event, true)">
+    </div>
+    <button (click)="enableReminders()">Enable reminders</button>
+  </div>
+
+  <div class="actions">
+    <button class="primary" (click)="startToday()">Start exercises</button>
+  </div>
+</section>
+
+

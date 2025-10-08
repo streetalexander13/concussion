@@ -1,0 +1,29 @@
+<section class="day-detail" *ngIf="session() as s">
+  <h2>Day {{ s.date }}</h2>
+  <div class="card">
+    <div><strong>Baseline</strong>: {{ s.baseline }}/10</div>
+    <div><strong>Recorded</strong>: {{ s.baselineRecordedAt | date:'shortTime' }}</div>
+  </div>
+
+  <div class="card">
+    <h3>Baseline last 14 days</h3>
+    <app-sparkline [values]="baselineValues()" [width]="600" [height]="60" [min]="0" [max]="10" />
+  </div>
+
+  <div class="ex-list">
+    <div class="ex-card" *ngFor="let ex of s.exercises">
+      <div class="row">
+        <div class="title">{{ ex.config.title }}</div>
+        <div class="status">{{ ex.result ? 'Done' : 'Pending' }}</div>
+      </div>
+      <div class="desc">{{ ex.config.description }}</div>
+      <div *ngIf="ex.result">
+        <div>Worsened: {{ ex.result.worsened ? 'Yes' : 'No' }}</div>
+        <div *ngIf="ex.result.worsened">Severity: {{ ex.result.severity }}/9</div>
+      </div>
+      <div *ngIf="ex.adviceForNextTime" class="advice">💡 {{ ex.adviceForNextTime }}</div>
+    </div>
+  </div>
+</section>
+
+

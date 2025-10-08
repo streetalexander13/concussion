@@ -1,0 +1,8 @@
+.day-detail { max-width: 800px; margin: 0 auto; padding: 1rem; }
+.card { background: white; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); padding: 1rem; margin-bottom: 1rem; }
+.ex-list { display: grid; gap: 12px; }
+.ex-card { background: white; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); padding: 1rem; }
+.row { display: flex; justify-content: space-between; align-items: center; }
+.title { font-weight: 700; }
+.advice { margin-top: .5rem; color: #6c5ce7; font-weight: 600; }
+

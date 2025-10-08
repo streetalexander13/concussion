@@ -1,0 +1,12 @@
+:host { display: block; min-height: 100dvh; background: #f8f9fb; color: #0f172a; }
+
+.app-header { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+.nav { display: flex; gap: 0.5rem; }
+.nav a { text-decoration: none; color: #475569; padding: 0.5rem 0.75rem; border-radius: 8px; }
+.nav a.active, .nav a:hover { background: #eef2ff; color: #4338ca; }
+.brand { font-weight: 800; letter-spacing: 0.2px; }
+.spacer { flex: 1; }
+.streak-pill { background: #fff7ed; color: #f97316; border: 1px solid #ffedd5; padding: 0.35rem 0.6rem; border-radius: 999px; font-weight: 600; }
+
+.shell { max-width: 1100px; margin: 0 auto; padding: 1rem; }
+
