@@ -1,14 +1,307 @@
-.track { max-width: 900px; margin: 0 auto; padding: 1rem; }
-.top { display: flex; align-items: center; justify-content: space-between; }
-.calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 1rem; }
-.day { background: white; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); padding: 0.75rem; cursor: pointer; }
-.date { font-weight: 700; }
-.status { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; margin-top: 0.5rem; }
-.status.done { background: #21c07a; color: white; }
-.status.missed { background: #ffe7e7; color: #ff6b6b; }
-.time { color: #666; font-size: 0.75rem; margin-top: 0.25rem; }
-.primary { background: #6c5ce7; color: white; border: none; border-radius: 12px; padding: 0.75rem 1rem; }
-.actions { display: flex; justify-content: center; margin-top: 1rem; }
-.settings.card { background: white; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); padding: 1rem; margin-top: 1rem; }
-.settings .row { display: flex; align-items: center; gap: 1rem; margin: 0.5rem 0; }
+.track {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
 
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.nav-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.title-group {
+  flex: 1;
+  text-align: center;
+}
+
+.title-group h2 {
+  margin: 0;
+  font-size: 1.875rem;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.calendar-container {
+  margin-bottom: 2rem;
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.day-card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  animation: fadeIn 0.4s ease-out backwards;
+  position: relative;
+  overflow: hidden;
+}
+
+.day-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.day-card.completed::before {
+  transform: scaleX(1);
+}
+
+.day-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary);
+}
+
+.date-number {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+  color: var(--text);
+}
+
+.status-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.75rem auto;
+  transition: all 0.3s;
+}
+
+.status-badge.done {
+  background: linear-gradient(135deg, var(--success), #059669);
+  color: white;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.status-badge:not(.done) {
+  background: rgba(100, 116, 139, 0.1);
+  color: var(--text-muted);
+}
+
+.check-icon {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.dot {
+  font-size: 2rem;
+  line-height: 0;
+}
+
+.completion-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+}
+
+.sparkline-card {
+  margin-bottom: 2rem;
+}
+
+.card-header {
+  margin-bottom: 1.5rem;
+}
+
+.header-content h3 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.card-subtitle {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.sparkline-wrapper {
+  padding: 1rem;
+  background: rgba(99, 102, 241, 0.02);
+  border-radius: 12px;
+}
+
+.settings-card {
+  margin-bottom: 2rem;
+}
+
+.settings-card h3 {
+  margin-bottom: 1.5rem;
+}
+
+.settings-grid {
+  display: grid;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.setting-label {
+  flex: 1;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.time-input {
+  flex: 2;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.2s;
+  background: var(--surface);
+}
+
+.time-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.btn-medium {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+}
+
+.cta-section {
+  margin-top: 3rem;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-hero {
+  width: 100%;
+  max-width: 600px;
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  font-size: 1.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.btn-hero:hover::before {
+  opacity: 1;
+}
+
+.btn-icon {
+  font-size: 2rem;
+}
+
+.btn-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.btn-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.btn-subtitle {
+  font-size: 0.875rem;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.arrow {
+  font-size: 1.75rem;
+  transition: transform 0.3s;
+}
+
+.btn-hero:hover .arrow {
+  transform: translateX(6px);
+}
+
+@media (max-width: 768px) {
+  .calendar {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 0.75rem;
+  }
+  
+  .day-card {
+    padding: 1rem;
+  }
+  
+  .date-number {
+    font-size: 1.25rem;
+  }
+  
+  .status-badge {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .btn-hero {
+    padding: 1.25rem 1.5rem;
+  }
+  
+  .btn-title {
+    font-size: 1.125rem;
+  }
+}

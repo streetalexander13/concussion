@@ -1,47 +1,74 @@
-<section class="track">
+<section class="track fade-in">
   <header class="top">
-    <button (click)="goPrevMonth()">‹</button>
-    <h2>Track progress</h2>
-    <button (click)="goNextMonth()">›</button>
+    <button class="nav-btn" (click)="goPrevMonth()">
+      <span>‹</span>
+    </button>
+    <div class="title-group">
+      <h2>📅 Track Progress</h2>
+      <p class="subtitle">Your recovery journey</p>
+    </div>
+    <button class="nav-btn" (click)="goNextMonth()">
+      <span>›</span>
+    </button>
   </header>
 
-  <div class="calendar">
-    <div class="day" *ngFor="let d of daysInMonth()" [routerLink]="['/day', d.date]">
-      <div class="date">{{ d.date.slice(-2) }}</div>
-      <div class="status" [class.done]="d.completed" [class.missed]="!d.completed">
-        <span *ngIf="d.completed">✔</span>
-        <span *ngIf="!d.completed">•</span>
-      </div>
-      <div class="time" *ngIf="d.time">{{ d.time }}</div>
-    </div>
-  </div>
-
-  <div class="card spark">
-    <div class="row">
-      <div>
-        <h3>Baseline trend (last 14 days)</h3>
-        <small>Lower is better</small>
+  <div class="calendar-container">
+    <div class="calendar">
+      <div class="day-card" *ngFor="let d of daysInMonth(); let i = index" 
+           [routerLink]="['/day', d.date]"
+           [class.completed]="d.completed"
+           [style.animation-delay.ms]="i * 30">
+        <div class="date-number">{{ d.date.slice(-2) }}</div>
+        <div class="status-badge" [class.done]="d.completed">
+          <span *ngIf="d.completed" class="check-icon">✓</span>
+          <span *ngIf="!d.completed" class="dot">•</span>
+        </div>
+        <div class="completion-time" *ngIf="d.time">{{ d.time }}</div>
       </div>
     </div>
-    <app-sparkline [values]="baselineValues()" [width]="600" [height]="60" [min]="0" [max]="10" />
   </div>
 
-  <div class="settings card">
-    <h3>Reminder time</h3>
-    <div class="row">
-      <label>Weekdays</label>
-      <input type="time" (change)="onTimeChange($event, false)">
+  <div class="card sparkline-card">
+    <div class="card-header">
+      <div class="header-content">
+        <h3>📈 Baseline Trend</h3>
+        <p class="card-subtitle">Last 14 days · Lower is better</p>
+      </div>
     </div>
-    <div class="row">
-      <label>Weekends</label>
-      <input type="time" (change)="onTimeChange($event, true)">
+    <div class="sparkline-wrapper">
+      <app-sparkline [values]="baselineValues()" [width]="600" [height]="80" [min]="0" [max]="10" />
     </div>
-    <button (click)="enableReminders()">Enable reminders</button>
   </div>
 
-  <div class="actions">
-    <button class="primary" (click)="startToday()">Start exercises</button>
+  <div class="settings-card card">
+    <h3>⏰ Reminder Settings</h3>
+    <div class="settings-grid">
+      <div class="setting-row">
+        <label class="setting-label">Weekdays</label>
+        <input type="time" class="time-input" (change)="onTimeChange($event, false)" value="08:00">
+      </div>
+      <div class="setting-row">
+        <label class="setting-label">Weekends</label>
+        <input type="time" class="time-input" (change)="onTimeChange($event, true)" value="09:30">
+      </div>
+    </div>
+    <button class="secondary btn-medium" (click)="enableReminders()">
+      <span>🔔</span>
+      <span>Enable Notifications</span>
+    </button>
+  </div>
+
+  <div class="cta-section">
+    <button class="primary btn-hero" (click)="startToday()">
+      <span class="btn-icon">💪</span>
+      <div class="btn-text">
+        <span class="btn-title">Start Today's Exercises</span>
+        <span class="btn-subtitle">~5 minutes</span>
+      </div>
+      <span class="arrow">→</span>
+    </button>
   </div>
 </section>
+
 
 
