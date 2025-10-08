@@ -43,5 +43,17 @@ export class LoginComponent {
       this.loading.set(false);
     }
   }
+
+  async signInWithGoogle() {
+    this.loading.set(true);
+    this.error.set(null);
+
+    try {
+      await this.auth.signInWithGoogle();
+    } catch (err: any) {
+      this.error.set(err.message);
+      this.loading.set(false);
+    }
+  }
 }
 

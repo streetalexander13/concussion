@@ -7,6 +7,8 @@ import {
   onAuthStateChanged,
   User,
   updateProfile,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from 'firebase/auth';
 import { auth } from './firebase.config';
 
@@ -41,6 +43,16 @@ export class AuthService {
   async signIn(email: string, password: string): Promise<void> {
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      this.router.navigate(['/start']);
+    } catch (error: any) {
+      throw new Error(this.getErrorMessage(error.code));
+    }
+  }
+
+  async signInWithGoogle(): Promise<void> {
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
       this.router.navigate(['/start']);
     } catch (error: any) {
       throw new Error(this.getErrorMessage(error.code));

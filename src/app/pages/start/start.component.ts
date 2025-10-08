@@ -330,6 +330,23 @@ export class StartComponent implements OnDestroy {
     }
   }
 
+  adjustBpm(delta: number) {
+    // Update the metronome component's BPM directly
+    if (this.metronome) {
+      if (delta > 0) {
+        this.metronome.increaseBpm();
+      } else {
+        this.metronome.decreaseBpm();
+      }
+      // Sync our local BPM signal with the metronome's current BPM
+      this.currentBpm.set(this.metronome.getCurrentBpm());
+    } else {
+      // Fallback if metronome not available
+      const newBpm = Math.max(30, Math.min(120, this.currentBpm() + delta));
+      this.currentBpm.set(newBpm);
+    }
+  }
+
   ngOnDestroy() {
     // Clean up all intervals
     if (this.countdownInterval) {

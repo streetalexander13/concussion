@@ -535,12 +535,12 @@
   gap: 0.5rem;
 }
 
-.metronome-visual-display {
+.metronome-controls-wrapper {
   margin-top: 1.5rem;
   animation: fadeIn 0.3s ease-out;
 }
 
-.metronome-info {
+.bpm-controls {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -551,17 +551,63 @@
   border: 2px solid rgba(99, 102, 241, 0.1);
 }
 
-.bpm-display {
-  font-size: 1.25rem;
+.bpm-adjust-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  border: none;
+  font-size: 1.75rem;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  line-height: 1;
+  padding-bottom: 2px;
+}
+
+.bpm-adjust-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+}
+
+.bpm-adjust-btn:active {
+  transform: scale(0.95);
+}
+
+.bpm-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 100px;
+}
+
+.bpm-value {
+  font-size: 2rem;
+  font-weight: 800;
   color: var(--primary);
+  line-height: 1;
+}
+
+.bpm-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
 }
 
 .beat-indicator {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   color: var(--text-muted);
   opacity: 0.3;
   transition: all 0.2s;
+  margin-top: 0.25rem;
 }
 
 .beat-indicator.active {
@@ -572,7 +618,7 @@
 
 @keyframes beat-pulse {
   0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
+  50% { transform: scale(1.4); }
   100% { transform: scale(1); }
 }
 
