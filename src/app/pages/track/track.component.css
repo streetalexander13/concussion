@@ -278,30 +278,160 @@
   transform: translateX(6px);
 }
 
+/* Mobile Optimizations */
 @media (max-width: 768px) {
+  .track {
+    padding: 1rem;
+  }
+  
+  .top {
+    margin-bottom: 1.5rem;
+  }
+  
+  .nav-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 1.25rem;
+  }
+  
+  .title-group h2 {
+    font-size: 1.5rem;
+  }
+  
+  .subtitle {
+    font-size: 0.75rem;
+  }
+  
   .calendar {
-    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
     gap: 0.75rem;
   }
   
   .day-card {
-    padding: 1rem;
+    padding: 0.875rem;
   }
   
   .date-number {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
   }
   
   .status-badge {
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
+    margin: 0.5rem auto;
+  }
+  
+  .check-icon {
+    font-size: 1rem;
+  }
+  
+  .completion-time {
+    font-size: 0.625rem;
+  }
+  
+  .sparkline-card,
+  .settings-card {
+    margin-bottom: 1.5rem;
+  }
+  
+  .card-header h3,
+  .settings-card h3 {
+    font-size: 1.25rem;
+  }
+  
+  .sparkline-wrapper {
+    padding: 0.75rem;
+  }
+  
+  .setting-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  
+  .setting-label {
+    font-size: 0.875rem;
+  }
+  
+  .time-input {
+    padding: 0.75rem;
+  }
+  
+  .btn-medium {
+    padding: 0.875rem 1.25rem;
   }
   
   .btn-hero {
-    padding: 1.25rem 1.5rem;
+    padding: 1.125rem 1.25rem;
+    gap: 1rem;
+  }
+  
+  .btn-icon {
+    font-size: 1.5rem;
   }
   
   .btn-title {
     font-size: 1.125rem;
+  }
+  
+  .btn-subtitle {
+    font-size: 0.75rem;
+  }
+  
+  .arrow {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .track {
+    padding: 0.75rem;
+  }
+  
+  .calendar {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 0.5rem;
+  }
+  
+  .day-card {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .date-number {
+    font-size: 1rem;
+  }
+  
+  .status-badge {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .btn-hero {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .btn-text {
+    align-items: center;
+  }
+}
+
+/* Remove touch delay on buttons */
+button, .day-card, .nav a {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+/* Smooth scrolling */
+.track {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent animation stutter on mobile */
+@media (prefers-reduced-motion: reduce) {
+  .day-card {
+    animation: none;
   }
 }

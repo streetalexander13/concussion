@@ -1,27 +1,73 @@
-<section class="day-detail" *ngIf="session() as s">
-  <h2>Day {{ s.date }}</h2>
-  <div class="card">
-    <div><strong>Baseline</strong>: {{ s.baseline }}/10</div>
-    <div><strong>Recorded</strong>: {{ s.baselineRecordedAt | date:'shortTime' }}</div>
+<section class="day-detail fade-in" *ngIf="session() as s">
+  <header class="detail-header">
+    <div class="date-badge">📅 {{ s.date }}</div>
+    <h2>Your Recovery Day</h2>
+  </header>
+
+  <div class="card baseline-card">
+    <div class="card-title">
+      <span class="emoji">🧠</span>
+      <h3>Baseline Symptoms</h3>
+    </div>
+    <div class="baseline-display">
+      <div class="baseline-value">
+        <span class="number">{{ s.baseline }}</span>
+        <span class="max">/10</span>
+      </div>
+      <div class="baseline-meta">
+        <span class="time">{{ s.baselineRecordedAt | date:'shortTime' }}</span>
+      </div>
+    </div>
   </div>
 
-  <div class="card">
-    <h3>Baseline last 14 days</h3>
-    <app-sparkline [values]="baselineValues()" [width]="600" [height]="60" [min]="0" [max]="10" />
+  <div class="card trend-card">
+    <div class="card-title">
+      <span class="emoji">📈</span>
+      <h3>14-Day Baseline Trend</h3>
+    </div>
+    <p class="trend-subtitle">Lower values indicate improving symptoms</p>
+    <div class="sparkline-container">
+      <app-sparkline [values]="baselineValues()" [width]="600" [height]="80" [min]="0" [max]="10" />
+    </div>
   </div>
 
-  <div class="ex-list">
-    <div class="ex-card" *ngFor="let ex of s.exercises">
-      <div class="row">
-        <div class="title">{{ ex.config.title }}</div>
-        <div class="status">{{ ex.result ? 'Done' : 'Pending' }}</div>
+  <div class="exercises-section">
+    <h3 class="section-title">
+      <span class="emoji">💪</span>
+      Exercises Completed
+    </h3>
+    <div class="exercise-list">
+      <div class="exercise-card card" *ngFor="let ex of s.exercises; let i = index"
+           [style.animation-delay.ms]="i * 100">
+        <div class="exercise-header">
+          <div class="exercise-title">
+            <span class="exercise-number">{{ i + 1 }}</span>
+            <h4>{{ ex.config.title }}</h4>
+          </div>
+          <div class="exercise-status" [class.completed]="ex.result">
+            <span *ngIf="ex.result" class="status-badge done">✓ Done</span>
+            <span *ngIf="!ex.result" class="status-badge pending">⏳ Pending</span>
+          </div>
+        </div>
+        
+        <p class="exercise-desc">{{ ex.config.description }}</p>
+        
+        <div class="exercise-results" *ngIf="ex.result">
+          <div class="result-item">
+            <span class="result-label">Symptom Change</span>
+            <span class="result-value" [class.worsened]="ex.result.worsened">
+              <span *ngIf="!ex.result.worsened" class="emoji">😊</span>
+              <span *ngIf="ex.result.worsened" class="emoji">😰</span>
+              {{ ex.result.worsened ? 'Worsened +' + ex.result.severity : 'No change' }}
+            </span>
+          </div>
+          
+          <div class="advice-box" *ngIf="ex.adviceForNextTime">
+            <span class="advice-icon">💡</span>
+            <p class="advice-text">{{ ex.adviceForNextTime }}</p>
+          </div>
+        </div>
       </div>
-      <div class="desc">{{ ex.config.description }}</div>
-      <div *ngIf="ex.result">
-        <div>Worsened: {{ ex.result.worsened ? 'Yes' : 'No' }}</div>
-        <div *ngIf="ex.result.worsened">Severity: {{ ex.result.severity }}/9</div>
-      </div>
-      <div *ngIf="ex.adviceForNextTime" class="advice">💡 {{ ex.adviceForNextTime }}</div>
     </div>
   </div>
 </section>

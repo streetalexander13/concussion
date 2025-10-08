@@ -12,7 +12,7 @@ import {
   todayIsoDate,
 } from './models';
 
-const STORAGE_KEY = 'concussion_recovery_app_state_v1';
+const STORAGE_KEY = 'concussion_recovery_app_state_v2'; // Updated version for 5 exercises
 
 @Injectable({ providedIn: 'root' })
 export class DataService {
@@ -22,8 +22,15 @@ export class DataService {
 
   private load(): AppState {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return { settings: DEFAULT_SETTINGS, sessions: [] };
+      // Try new version first
+      let raw = localStorage.getItem(STORAGE_KEY);
+      
+      // If not found, clear old version
+      if (!raw) {
+        localStorage.removeItem('concussion_recovery_app_state_v1');
+        return { settings: DEFAULT_SETTINGS, sessions: [] };
+      }
+      
       return JSON.parse(raw) as AppState;
     } catch {
       return { settings: DEFAULT_SETTINGS, sessions: [] };

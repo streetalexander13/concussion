@@ -1,13 +1,13 @@
 <section class="track fade-in">
   <header class="top">
-    <button class="nav-btn" (click)="goPrevMonth()">
+    <button type="button" class="nav-btn" (click)="goPrevMonth()">
       <span>‹</span>
     </button>
     <div class="title-group">
       <h2>📅 Track Progress</h2>
       <p class="subtitle">Your recovery journey</p>
     </div>
-    <button class="nav-btn" (click)="goNextMonth()">
+    <button type="button" class="nav-btn" (click)="goNextMonth()">
       <span>›</span>
     </button>
   </header>
@@ -52,14 +52,14 @@
         <input type="time" class="time-input" (change)="onTimeChange($event, true)" value="09:30">
       </div>
     </div>
-    <button class="secondary btn-medium" (click)="enableReminders()">
+    <button type="button" class="secondary btn-medium" (click)="enableReminders()">
       <span>🔔</span>
       <span>Enable Notifications</span>
     </button>
   </div>
 
   <div class="cta-section">
-    <button class="primary btn-hero" (click)="startToday()">
+    <button type="button" class="primary btn-hero" (click)="startToday()">
       <span class="btn-icon">💪</span>
       <div class="btn-text">
         <span class="btn-title">Start Today's Exercises</span>

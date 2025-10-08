@@ -1,9 +1,10 @@
-export type ExerciseType = 'saccades' | 'vor_lr';
+export type ExerciseType = 'saccades' | 'vor_lr' | 'vor_ud' | 'vms' | 'convergence';
 
 export interface ExerciseConfig {
   id: ExerciseType;
   title: string;
   description: string;
+  instruction?: string;
   durationSeconds: number;
   hasMetronome?: boolean;
   bpm?: number; // only for metronome-based exercises
@@ -72,18 +73,45 @@ export const DEFAULT_EXERCISE_SEQUENCE: ExerciseConfig[] = [
   {
     id: 'saccades',
     title: 'Saccades',
-    description:
-      'Move your eyes quickly between two targets without moving your head. Start seated.',
+    description: 'Hold two arms out and focus on the end of your index finger.',
+    instruction: 'Shoot your eyes between each finger, changing position/location every 5-10 repetitions',
     durationSeconds: 30,
+    hasMetronome: false,
   },
   {
     id: 'vor_lr',
     title: 'VOR – Left ↔ Right',
-    description:
-      'Keep eyes on a target while rotating your head left and right to a metronome.',
+    description: 'Hold finger out and focus on it.',
+    instruction: 'Rotate your head left to right while focusing on finger',
     durationSeconds: 30,
     hasMetronome: true,
     bpm: 55,
+  },
+  {
+    id: 'vor_ud',
+    title: 'VOR – Up ↕ Down',
+    description: 'Hold finger out and focus on it.',
+    instruction: 'Nod your head up and down while focusing on finger',
+    durationSeconds: 30,
+    hasMetronome: true,
+    bpm: 60,
+  },
+  {
+    id: 'vms',
+    title: 'VMS',
+    description: 'Hold out thumb with straight arm in standing.',
+    instruction: 'Rotate arm and trunk as one unit while focusing on thumb',
+    durationSeconds: 30,
+    hasMetronome: true,
+    bpm: 35,
+  },
+  {
+    id: 'convergence',
+    title: 'Convergence',
+    description: 'Move finger slowly towards the nose attempting to focus.',
+    instruction: 'When you see double, restart',
+    durationSeconds: 30,
+    hasMetronome: false,
   },
 ];
 

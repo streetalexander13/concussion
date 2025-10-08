@@ -1,7 +1,8 @@
-<section class="start">
-  <div class="progress-bar">
-    <div class="progress" [style.width.%]="(currentExerciseIndex() / 2) * 100"></div>
-  </div>
+  <section class="start">
+    <div class="progress-bar">
+      <div class="progress" [style.width.%]="(currentExerciseIndex() / 5) * 100"></div>
+      <div class="progress-text">{{ currentExerciseIndex() }} / 5 exercises</div>
+    </div>
 
   <ng-container [ngSwitch]="step()">
     <div *ngSwitchCase="'baseline'" class="card fade-in">
@@ -22,7 +23,7 @@
           <span>😰 Severe</span>
         </div>
       </div>
-      <button class="primary btn-large" (click)="confirmBaseline()">
+      <button type="button" class="primary btn-large" (click)="confirmBaseline()">
         <span>Continue</span>
         <span class="arrow">→</span>
       </button>
@@ -32,11 +33,20 @@
       <div class="emoji-icon bounce">💪</div>
       <h2>Ready for {{ currentExercise()?.title }}?</h2>
       <p class="subtitle">{{ currentExercise()?.description }}</p>
+      
+      <app-exercise-animation [exerciseId]="currentExercise()?.id || ''"></app-exercise-animation>
+      
       <div class="prep-note">Please take a comfortable seated position</div>
-      <button class="primary btn-large" (click)="beginExercise()">
-        <span>Start Exercise</span>
-        <span class="play-icon">▶</span>
-      </button>
+      <div class="action-buttons">
+        <button type="button" class="primary btn-large" (click)="beginExercise()">
+          <span>Start Exercise</span>
+          <span class="play-icon">▶</span>
+        </button>
+        <button type="button" class="secondary btn-medium skip-btn" (click)="skipExercise()">
+          <span>⏭</span>
+          <span>Skip</span>
+        </button>
+      </div>
     </div>
 
     <div *ngSwitchCase="'exercise'" class="card fade-in exercise-card">
@@ -51,21 +61,49 @@
       <div class="timer-wrapper" *ngIf="countdown() <= 0 && timer() > 0">
         <div class="timer-circle">
           <svg class="timer-svg" viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="timer-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+              </linearGradient>
+            </defs>
             <circle cx="50" cy="50" r="45" class="timer-bg" />
             <circle cx="50" cy="50" r="45" class="timer-progress" 
               [style.stroke-dashoffset]="282 * (1 - timer() / 30)" />
           </svg>
-          <div class="timer-text">{{ timer() }}<span>s</span></div>
+          <div class="timer-text">{{ timer() }}</div>
         </div>
-        <div class="metronome-indicator" *ngIf="metronomeOn()">
-          <span class="pulse">♪</span> Metronome active
+        
+        <app-metronome 
+          *ngIf="currentExercise()?.hasMetronome"
+          [initialBpm]="currentBpm()"
+          [isPlaying]="metronomeOn()">
+        </app-metronome>
+        
+        <div class="timer-controls">
+          <button type="button" *ngIf="!isPaused()" class="control-btn pause" (click)="pauseTimer()">
+            <span>⏸</span>
+            <span>Pause</span>
+          </button>
+          <button type="button" *ngIf="isPaused()" class="control-btn resume" (click)="resumeTimer()">
+            <span>▶</span>
+            <span>Resume</span>
+          </button>
+          <button type="button" class="control-btn restart" (click)="restartTimer()">
+            <span>↻</span>
+            <span>Restart</span>
+          </button>
+          <button type="button" class="control-btn skip" (click)="skipExercise()">
+            <span>⏭</span>
+            <span>Skip</span>
+          </button>
         </div>
       </div>
 
       <div class="symptom-check" *ngIf="countdown() <= 0 && timer() <= 0">
         <p class="check-title">Did your symptoms worsen?</p>
         <div class="check-buttons">
-          <button class="check-btn no-btn" (click)="recordSymptom(false)">
+          <button type="button" class="check-btn no-btn" (click)="recordSymptom(false)">
             <span class="emoji">😊</span>
             <span>No change</span>
           </button>
@@ -74,12 +112,15 @@
               <label>Severity (1-9)</label>
               <input type="number" min="1" max="9" value="3" #sev class="severity-number" />
             </div>
-            <button class="check-btn yes-btn primary" (click)="recordSymptom(true, +sev.value)">
+            <button type="button" class="check-btn yes-btn primary" (click)="recordSymptom(true, +sev.value)">
               <span class="emoji">😰</span>
               <span>Yes, worsened</span>
             </button>
           </div>
         </div>
+        <button type="button" class="skip-link" (click)="skipExercise()">
+          Skip this exercise →
+        </button>
       </div>
     </div>
 
@@ -89,15 +130,15 @@
       <p class="subtitle">You've completed today's exercises</p>
       <div class="completion-stats">
         <div class="stat">
-          <span class="stat-number">{{ currentExerciseIndex() }}</span>
+          <span class="stat-number">5</span>
           <span class="stat-label">Exercises</span>
         </div>
         <div class="stat">
-          <span class="stat-number">~5</span>
+          <span class="stat-number">~3</span>
           <span class="stat-label">Minutes</span>
         </div>
       </div>
-      <button class="primary btn-large" (click)="goToTrack()">
+      <button type="button" class="primary btn-large" (click)="goToTrack()">
         <span>View Progress</span>
         <span class="arrow">→</span>
       </button>
