@@ -1,4 +1,4 @@
-.start {
+.measurement {
   max-width: 680px;
   margin: 0 auto;
   padding: 1.5rem;
@@ -635,6 +635,152 @@
 }
 
 /* Smooth scroll for iOS */
-.start {
+.measurement {
   -webkit-overflow-scrolling: touch;
+}
+
+/* Demo Badge */
+.demo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 146, 60, 0.1));
+  border: 2px solid rgba(245, 158, 11, 0.3);
+  border-radius: 999px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.demo-badge .emoji {
+  font-size: 1.25rem;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Signup CTA Section */
+.signup-cta {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(236, 72, 153, 0.05));
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.cta-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+  display: inline-block;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.signup-cta h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.75rem;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.signup-cta > p {
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+  font-size: 1.0625rem;
+}
+
+.cta-features {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  transition: all 0.2s;
+}
+
+.feature:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+
+.feature-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.cta-btn {
+  margin: 2rem auto 1rem;
+  font-size: 1.125rem;
+  padding: 1rem 2.5rem;
+}
+
+.cta-note {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  margin: 0;
+  font-style: italic;
+}
+
+/* Mobile optimizations for CTA */
+@media (max-width: 640px) {
+  .demo-badge {
+    font-size: 0.875rem;
+    padding: 0.625rem 1.25rem;
+  }
+  
+  .signup-cta {
+    padding: 2rem 1.5rem;
+  }
+  
+  .cta-icon {
+    font-size: 3rem;
+  }
+  
+  .signup-cta h3 {
+    font-size: 1.5rem;
+  }
+  
+  .signup-cta > p {
+    font-size: 1rem;
+  }
+  
+  .cta-features {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .feature {
+    padding: 0.875rem;
+    font-size: 0.875rem;
+  }
+  
+  .feature-icon {
+    font-size: 1.25rem;
+  }
+  
+  .cta-btn {
+    font-size: 1rem;
+    padding: 0.875rem 2rem;
+    width: 100%;
+  }
 }

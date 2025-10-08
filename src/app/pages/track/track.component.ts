@@ -76,6 +76,10 @@ export class TrackComponent {
     const vals = sessions.slice(-14).map(s => s.baseline ?? 0);
     return vals;
   }
+
+  isFutureDate(date: string): boolean {
+    return date > todayIsoDate();
+  }
 }
 
 

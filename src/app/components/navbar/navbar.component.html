@@ -1,0 +1,102 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <!-- Logo/Brand -->
+    <a routerLink="/" class="navbar-brand" (click)="closeMenu()">
+      <span class="brand-icon">🧠</span>
+      <span class="brand-text">Concussion Recovery</span>
+    </a>
+
+    <!-- Desktop Navigation -->
+    <div class="navbar-menu desktop-menu">
+      <!-- Guest Links -->
+      <ng-container *ngIf="!isAuthenticated()">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
+          Home
+        </a>
+        <a routerLink="/measurement" routerLinkActive="active" class="nav-link">
+          Try Demo
+        </a>
+        <a routerLink="/login" routerLinkActive="active" class="nav-link">
+          Sign In
+        </a>
+        <a routerLink="/signup" routerLinkActive="active" class="nav-link nav-cta">
+          Get Started
+        </a>
+      </ng-container>
+
+      <!-- Authenticated Links -->
+      <ng-container *ngIf="isAuthenticated()">
+        <a routerLink="/start" routerLinkActive="active" class="nav-link">
+          Exercises
+        </a>
+        <a routerLink="/track" routerLinkActive="active" class="nav-link">
+          Track Progress
+        </a>
+        <div class="user-menu">
+          <span class="user-name">👋 {{ userName() }}</span>
+          <button type="button" class="sign-out-btn" (click)="signOut()">
+            Sign Out
+          </button>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button type="button" class="mobile-menu-btn" (click)="toggleMenu()" [class.open]="isMenuOpen">
+      <span class="hamburger"></span>
+      <span class="hamburger"></span>
+      <span class="hamburger"></span>
+    </button>
+  </div>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu" [class.open]="isMenuOpen">
+    <div class="mobile-menu-content">
+      <!-- Guest Links -->
+      <ng-container *ngIf="!isAuthenticated()">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" 
+           class="mobile-nav-link" (click)="closeMenu()">
+          <span class="link-icon">🏠</span>
+          <span>Home</span>
+        </a>
+        <a routerLink="/measurement" routerLinkActive="active" 
+           class="mobile-nav-link" (click)="closeMenu()">
+          <span class="link-icon">🎯</span>
+          <span>Try Demo</span>
+        </a>
+        <a routerLink="/login" routerLinkActive="active" 
+           class="mobile-nav-link" (click)="closeMenu()">
+          <span class="link-icon">🔐</span>
+          <span>Sign In</span>
+        </a>
+        <a routerLink="/signup" routerLinkActive="active" 
+           class="mobile-nav-link mobile-cta" (click)="closeMenu()">
+          <span class="link-icon">✨</span>
+          <span>Get Started</span>
+        </a>
+      </ng-container>
+
+      <!-- Authenticated Links -->
+      <ng-container *ngIf="isAuthenticated()">
+        <div class="mobile-user-info">
+          <span class="emoji">👋</span>
+          <span>{{ userName() }}</span>
+        </div>
+        <a routerLink="/start" routerLinkActive="active" 
+           class="mobile-nav-link" (click)="closeMenu()">
+          <span class="link-icon">💪</span>
+          <span>Exercises</span>
+        </a>
+        <a routerLink="/track" routerLinkActive="active" 
+           class="mobile-nav-link" (click)="closeMenu()">
+          <span class="link-icon">📊</span>
+          <span>Track Progress</span>
+        </a>
+        <button type="button" class="mobile-nav-link mobile-signout" (click)="signOut()">
+          <span class="link-icon">👋</span>
+          <span>Sign Out</span>
+        </button>
+      </ng-container>
+    </div>
+  </div>
+</nav>

@@ -1,4 +1,19 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, effect } from '@angular/core';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  Unsubscribe,
+} from 'firebase/firestore';
+import { db } from './firebase.config';
+import { AuthService } from './auth.service';
 import {
   AppState,
   DEFAULT_EXERCISE_SEQUENCE,
@@ -6,139 +21,236 @@ import {
   DaySession,
   ExerciseConfig,
   ExerciseResult,
-  ExerciseSession,
+  todayIsoDate,
   ReminderSettings,
   PersonalizationSettings,
-  todayIsoDate,
+  StoredDaySession,
+  hydrateSession,
+  dehydrateSession,
 } from './models';
-
-const STORAGE_KEY = 'concussion_recovery_app_state_v2'; // Updated version for 5 exercises
 
 @Injectable({ providedIn: 'root' })
 export class DataService {
-  private stateSig = signal<AppState>(this.load());
-
+  private stateSig = signal<AppState>({ settings: DEFAULT_SETTINGS, sessions: [] });
   state = this.stateSig.asReadonly();
 
-  private load(): AppState {
-    try {
-      // Try new version first
-      let raw = localStorage.getItem(STORAGE_KEY);
+  private unsubscribe?: Unsubscribe;
+  private currentUserId?: string;
+
+  constructor(private auth: AuthService) {
+    // Listen to auth changes and load user data
+    effect(() => {
+      const user = this.auth.currentUser();
       
-      // If not found, clear old version
-      if (!raw) {
-        localStorage.removeItem('concussion_recovery_app_state_v1');
-        return { settings: DEFAULT_SETTINGS, sessions: [] };
+      if (user && user.uid !== this.currentUserId) {
+        this.currentUserId = user.uid;
+        this.loadUserData(user.uid);
+      } else if (!user) {
+        this.currentUserId = undefined;
+        if (this.unsubscribe) {
+          this.unsubscribe();
+          this.unsubscribe = undefined;
+        }
+        this.stateSig.set({ settings: DEFAULT_SETTINGS, sessions: [] });
       }
-      
-      return JSON.parse(raw) as AppState;
-    } catch {
-      return { settings: DEFAULT_SETTINGS, sessions: [] };
+    });
+  }
+
+  private async loadUserData(userId: string) {
+    try {
+      // Load settings
+      const settingsDoc = await getDoc(doc(db, 'users', userId, 'data', 'settings'));
+      const settings = settingsDoc.exists() ? settingsDoc.data() as any : DEFAULT_SETTINGS;
+
+      // Subscribe to sessions in real-time
+      const sessionsRef = collection(db, 'users', userId, 'sessions');
+      const q = query(sessionsRef, orderBy('date', 'desc'));
+
+      this.unsubscribe = onSnapshot(q, (snapshot) => {
+        const sessions: DaySession[] = [];
+        snapshot.forEach((docSnap) => {
+          // Convert stored lightweight format to full format
+          const stored = docSnap.data() as StoredDaySession;
+          sessions.push(hydrateSession(stored));
+        });
+
+        this.stateSig.set({
+          settings: settings,
+          sessions: sessions,
+        });
+      });
+    } catch (error) {
+      console.error('Error loading user data:', error);
+      this.stateSig.set({ settings: DEFAULT_SETTINGS, sessions: [] });
     }
   }
 
-  private save(next: AppState): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  async getOrCreateTodaySession(): Promise<DaySession> {
+    const userId = this.currentUserId;
+    if (!userId) {
+      throw new Error('User not authenticated');
+    }
+
+    const date = todayIsoDate();
+    return this.getOrCreateSessionForDate(date);
   }
 
-  getOrCreateTodaySession(): DaySession {
-    const date = todayIsoDate();
+  async getOrCreateSessionForDate(date: string): Promise<DaySession> {
+    const userId = this.currentUserId;
+    if (!userId) {
+      throw new Error('User not authenticated');
+    }
+
     const existing = this.stateSig().sessions.find(s => s.date === date);
+
     if (existing) return existing;
+
+    // Create new session
     const created: DaySession = {
       date,
       baseline: 0,
-      baselineRecordedAt: new Date().toISOString(),
+      baselineRecordedAt: new Date(date + 'T12:00:00').toISOString(),
       exercises: DEFAULT_EXERCISE_SEQUENCE.map(e => {
         const cfg = { ...e } as ExerciseConfig;
         if (cfg.id === 'vor_lr') {
           cfg.bpm = this.stateSig().settings.personalization.vorDefaultBpm;
         }
-        return { config: cfg } as ExerciseSession;
+        return { config: cfg };
       }),
     };
-    const next: AppState = {
-      ...this.stateSig(),
-      sessions: [...this.stateSig().sessions, created],
-    };
-    this.stateSig.set(next);
-    this.save(next);
+
+    // Save to Firestore in lightweight format
+    const storedSession = dehydrateSession(created);
+    await setDoc(doc(db, 'users', userId, 'sessions', date), storedSession);
+
     return created;
   }
 
-  setBaseline(date: string, baseline: number): void {
-    const sessions = this.stateSig().sessions.map(s =>
-      s.date === date ? { ...s, baseline, baselineRecordedAt: new Date().toISOString() } : s,
-    );
-    const next = { ...this.stateSig(), sessions };
-    this.stateSig.set(next);
-    this.save(next);
+  async setBaseline(date: string, baseline: number): Promise<void> {
+    const userId = this.currentUserId;
+    if (!userId) return;
+
+    await setDoc(doc(db, 'users', userId, 'sessions', date), {
+      baseline,
+      baselineAt: new Date().toISOString(), // Use shortened field name
+    }, { merge: true });
   }
 
-  recordExerciseResult(date: string, exerciseId: string, result: ExerciseResult, advice?: string): void {
-    const sessions = this.stateSig().sessions.map(s => {
-      if (s.date !== date) return s;
-      const exercises = s.exercises.map(ex =>
-        ex.config.id === exerciseId ? { ...ex, result, adviceForNextTime: advice } : ex,
-      );
-      return { ...s, exercises };
+  async recordExerciseResult(
+    date: string,
+    exerciseId: string,
+    result: ExerciseResult,
+    advice?: string
+  ): Promise<void> {
+    const userId = this.currentUserId;
+    if (!userId) return;
+
+    const sessionDoc = await getDoc(doc(db, 'users', userId, 'sessions', date));
+    if (!sessionDoc.exists()) return;
+
+    const storedSession = sessionDoc.data() as StoredDaySession;
+    const updatedExercises = storedSession.exercises.map(ex => {
+      if (ex.id === exerciseId) {
+        const updated: any = { ...ex, result };
+        // Only add advice if it's defined
+        if (advice !== undefined) {
+          updated.advice = advice;
+        }
+        return updated;
+      }
+      return ex;
     });
-    const next = { ...this.stateSig(), sessions };
-    this.stateSig.set(next);
-    this.save(next);
+
+    await updateDoc(doc(db, 'users', userId, 'sessions', date), {
+      exercises: updatedExercises,
+    });
   }
 
-  updateVorBpmForNextDay(currentBpm: number, adjustment: 'down5' | 'up5' | 'same'): void {
-    const newBpm = adjustment === 'down5' ? currentBpm - 5 : adjustment === 'up5' ? currentBpm + 5 : currentBpm;
-    const settings = {
-      ...this.stateSig().settings,
-      personalization: { ...this.stateSig().settings.personalization, vorDefaultBpm: Math.max(10, newBpm) },
+  async updateVorBpmForNextDay(currentBpm: number, adjustment: 'down5' | 'up5' | 'same'): Promise<void> {
+    const userId = this.currentUserId;
+    if (!userId) return;
+
+    const newBpm =
+      adjustment === 'down5' ? currentBpm - 5
+      : adjustment === 'up5' ? currentBpm + 5
+      : currentBpm;
+
+    const settingsRef = doc(db, 'users', userId, 'data', 'settings');
+    const settingsDoc = await getDoc(settingsRef);
+    
+    const currentSettings = settingsDoc.exists() 
+      ? settingsDoc.data() 
+      : DEFAULT_SETTINGS;
+
+    const updatedSettings = {
+      ...currentSettings,
+      personalization: {
+        ...currentSettings.personalization,
+        vorDefaultBpm: Math.max(10, newBpm),
+      },
     };
-    const next = { ...this.stateSig(), settings };
-    this.stateSig.set(next);
-    this.save(next);
+
+    await setDoc(settingsRef, updatedSettings);
   }
 
-  updateReminderSettings(partial: Partial<ReminderSettings>): void {
-    const current = this.stateSig().settings.reminders;
-    const settings = {
-      ...this.stateSig().settings,
-      reminders: { ...current, ...partial },
+  async updateReminderSettings(partial: Partial<ReminderSettings>): Promise<void> {
+    const userId = this.currentUserId;
+    if (!userId) return;
+
+    const settingsRef = doc(db, 'users', userId, 'data', 'settings');
+    const settingsDoc = await getDoc(settingsRef);
+    
+    const currentSettings = settingsDoc.exists() 
+      ? settingsDoc.data() 
+      : DEFAULT_SETTINGS;
+
+    const updatedSettings = {
+      ...currentSettings,
+      reminders: { ...currentSettings.reminders, ...partial },
     };
-    const next = { ...this.stateSig(), settings };
-    this.stateSig.set(next);
-    this.save(next);
+
+    await setDoc(settingsRef, updatedSettings);
   }
 
-  updatePersonalization(partial: Partial<PersonalizationSettings>): void {
-    const current = this.stateSig().settings.personalization;
-    const settings = {
-      ...this.stateSig().settings,
-      personalization: { ...current, ...partial },
+  async updatePersonalization(partial: Partial<PersonalizationSettings>): Promise<void> {
+    const userId = this.currentUserId;
+    if (!userId) return;
+
+    const settingsRef = doc(db, 'users', userId, 'data', 'settings');
+    const settingsDoc = await getDoc(settingsRef);
+    
+    const currentSettings = settingsDoc.exists() 
+      ? settingsDoc.data() 
+      : DEFAULT_SETTINGS;
+
+    const updatedSettings = {
+      ...currentSettings,
+      personalization: { ...currentSettings.personalization, ...partial },
     };
-    const next = { ...this.stateSig(), settings };
-    this.stateSig.set(next);
-    this.save(next);
+
+    await setDoc(settingsRef, updatedSettings);
   }
 
   getRecentExerciseSeverities(exerciseId: string, limit: number): number[] {
     const severities: number[] = [];
     const sorted = [...this.stateSig().sessions].sort((a, b) => b.date.localeCompare(a.date));
+    
     for (const s of sorted) {
       const ex = s.exercises.find(e => e.config.id === exerciseId);
       if (ex?.result) severities.push(ex.result.severity);
       if (severities.length >= limit) break;
     }
+    
     return severities;
   }
 
-  markCompleted(date: string): void {
-    const sessions = this.stateSig().sessions.map(s =>
-      s.date === date ? { ...s, completedAt: new Date().toISOString() } : s,
-    );
-    const next = { ...this.stateSig(), sessions };
-    this.stateSig.set(next);
-    this.save(next);
+  async markCompleted(date: string): Promise<void> {
+    const userId = this.currentUserId;
+    if (!userId) return;
+
+    await setDoc(doc(db, 'users', userId, 'sessions', date), {
+      completedAt: new Date().toISOString(),
+    }, { merge: true });
   }
 
   getDaySession(date: string): DaySession | undefined {
@@ -146,9 +258,7 @@ export class DataService {
   }
 
   getExerciseConfig(exerciseId: string): ExerciseConfig | undefined {
-    const today = this.getOrCreateTodaySession();
-    return today.exercises.find(e => e.config.id === exerciseId)?.config;
+    const today = this.stateSig().sessions.find(s => s.date === todayIsoDate());
+    return today?.exercises.find(e => e.config.id === exerciseId)?.config;
   }
 }
-
-

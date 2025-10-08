@@ -2,7 +2,7 @@ import { Component, computed, effect, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { DataService } from '../../core/data.service';
-import { DaySession, DEFAULT_EXERCISE_SEQUENCE, ExerciseConfig, computeNextVorBpm } from '../../core/models';
+import { DaySession, DEFAULT_EXERCISE_SEQUENCE, ExerciseConfig, computeNextVorBpm, todayIsoDate } from '../../core/models';
 import { MetronomeComponent } from '../../components/metronome/metronome.component';
 import { ExerciseAnimationComponent } from '../../components/exercise-animation/exercise-animation.component';
 
@@ -27,6 +27,7 @@ export class StartComponent {
   metronomeTick = signal(0);
   advice = signal<string | null>(null);
   currentBpm = signal(55);
+  loading = signal(true);
 
   currentExercise = computed<ExerciseConfig | null>(() => {
     const s = this.session();
@@ -36,30 +37,69 @@ export class StartComponent {
   });
 
   constructor(private data: DataService, private router: Router) {
-    // Initialize session immediately
-    const s = this.data.getOrCreateTodaySession();
-    this.session.set(s);
-    this.baseline.set(s.baseline ?? 0);
+    // Initialize session asynchronously
+    this.initSession();
     
-    // Keep session in sync with data changes
+    // Keep session in sync with data changes using allowSignalWrites
     effect(() => {
-      const updated = this.data.getOrCreateTodaySession();
-      this.session.set(updated);
-    });
+      const state = this.data.state();
+      const today = state.sessions.find(s => s.date === todayIsoDate());
+      if (today) {
+        this.session.set(today);
+        if (!this.baseline()) {
+          this.baseline.set(today.baseline ?? 0);
+        }
+      }
+    }, { allowSignalWrites: true });
+  }
+
+  async initSession() {
+    try {
+      this.loading.set(true);
+      const s = await this.data.getOrCreateTodaySession();
+      this.session.set(s);
+      this.baseline.set(s.baseline ?? 0);
+      console.log('Session initialized:', s);
+    } catch (error) {
+      console.error('Error initializing session:', error);
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   startBaseline() {
     this.step.set('baseline');
   }
 
-  confirmBaseline() {
+  async confirmBaseline() {
     console.log('Confirm baseline clicked', this.baseline());
-    const s = this.session();
-    if (!s) {
-      console.error('No session found');
+    
+    // Ensure session is loaded
+    if (this.loading()) {
+      console.log('Still loading, please wait...');
       return;
     }
-    this.data.setBaseline(s.date, this.baseline());
+    
+    let s = this.session();
+    
+    // If no session, try to create it now
+    if (!s) {
+      console.log('No session found, creating one...');
+      try {
+        s = await this.data.getOrCreateTodaySession();
+        this.session.set(s);
+      } catch (error) {
+        console.error('Failed to create session:', error);
+        return;
+      }
+    }
+    
+    if (!s) {
+      console.error('Still no session found');
+      return;
+    }
+    
+    await this.data.setBaseline(s.date, this.baseline());
     this.step.set('interstitial');
   }
 
@@ -137,7 +177,7 @@ export class StartComponent {
     this.isPaused.set(false);
   }
 
-  recordSymptom(worsened: boolean, severity: number = 0) {
+  async recordSymptom(worsened: boolean, severity: number = 0) {
     console.log('Record symptom:', worsened, severity);
     const s = this.session();
     const ex = this.currentExercise();
@@ -145,10 +185,10 @@ export class StartComponent {
       console.error('No session or exercise');
       return;
     }
-    
+
     // Stop any running timers
     this.finishTimer();
-    
+
     const result = {
       startedAt: new Date().toISOString(),
       endedAt: new Date().toISOString(),
@@ -165,13 +205,13 @@ export class StartComponent {
       const severities = this.data.getRecentExerciseSeverities('vor_lr', 2);
       const nextBpm = computeNextVorBpm([severity, ...severities], userBpm);
       const adj = nextBpm < userBpm ? 'down5' : nextBpm > userBpm ? 'up5' : 'same';
-      this.data.updateVorBpmForNextDay(userBpm, adj);
+      await this.data.updateVorBpmForNextDay(userBpm, adj);
     }
-    this.data.recordExerciseResult(s.date, ex.id, result, advice);
+    await this.data.recordExerciseResult(s.date, ex.id, result, advice);
     
     const nextIndex = this.currentExerciseIndex() + 1;
     if (nextIndex >= DEFAULT_EXERCISE_SEQUENCE.length) {
-      this.data.markCompleted(s.date);
+      await this.data.markCompleted(s.date);
       this.step.set('done');
     } else {
       this.currentExerciseIndex.set(nextIndex);
@@ -184,7 +224,7 @@ export class StartComponent {
     this.step.set('interstitial');
   }
 
-  skipExercise() {
+  async skipExercise() {
     console.log('Skip exercise');
     const s = this.session();
     const ex = this.currentExercise();
@@ -200,11 +240,11 @@ export class StartComponent {
       worsened: false,
       severity: 0,
     };
-    this.data.recordExerciseResult(s.date, ex.id, result, 'Skipped');
+    await this.data.recordExerciseResult(s.date, ex.id, result, 'Skipped');
 
     const nextIndex = this.currentExerciseIndex() + 1;
     if (nextIndex >= DEFAULT_EXERCISE_SEQUENCE.length) {
-      this.data.markCompleted(s.date);
+      await this.data.markCompleted(s.date);
       this.step.set('done');
     } else {
       this.currentExerciseIndex.set(nextIndex);

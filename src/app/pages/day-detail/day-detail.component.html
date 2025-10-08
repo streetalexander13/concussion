@@ -1,13 +1,176 @@
-<section class="day-detail fade-in" *ngIf="session() as s">
+<section class="day-detail fade-in" *ngIf="session() as s; else noSession">
   <header class="detail-header">
     <div class="date-badge">📅 {{ s.date }}</div>
     <h2>Your Recovery Day</h2>
-  </header>
+    
+    <!-- Future date warning -->
+    <div class="info-banner future-banner" *ngIf="isFutureDate()">
+      <span class="emoji">🔮</span>
+      <p>This date is in the future. Come back on {{ s.date }} to complete exercises!</p>
+    </div>
+    
+      <!-- No exercises done warning -->
+      <div class="info-banner warning-banner" *ngIf="!isFutureDate() && !hasAnyResults()">
+        <span class="emoji">⚠️</span>
+        <p>No exercises completed on this day.</p>
+        <div class="banner-actions">
+          <button type="button" class="btn-small primary" (click)="goToStart()" *ngIf="date === todayIsoDate()">
+            Complete Today's Exercises
+          </button>
+          <button type="button" class="btn-small primary" (click)="toggleManualEntry()" *ngIf="date !== todayIsoDate()">
+            {{ showManualEntry() ? 'Cancel' : 'Add Previous Exercise' }}
+          </button>
+        </div>
+      </div>
+    </header>
 
-  <div class="card baseline-card">
+  <!-- Manual Entry Form (for adding new data) -->
+  <div class="card manual-entry-card" *ngIf="showManualEntry() && !editMode()">
+    <div class="card-title">
+      <span class="emoji">✍️</span>
+      <h3>Manual Entry</h3>
+    </div>
+    <p class="manual-subtitle">Record what you did on {{ s.date }}</p>
+
+    <div class="manual-form">
+      <div class="form-group">
+        <label>Baseline Symptoms (0-10)</label>
+        <input type="range" min="0" max="10"
+               [value]="manualBaseline()"
+               (input)="manualBaseline.set(+$any($event.target).value)" />
+        <div class="value-display">
+          <span class="value-number">{{ manualBaseline() }}</span>
+          <span class="value-label">/10</span>
+        </div>
+      </div>
+
+      <div class="exercises-section">
+        <h4 class="section-label">Exercise Symptoms</h4>
+        <div class="exercise-input-list">
+          <div class="exercise-input-card" *ngFor="let ex of manualExercises(); let i = index">
+            <div class="exercise-input-header">
+              <span class="exercise-number">{{ i + 1 }}</span>
+              <h5>{{ ex.name }}</h5>
+            </div>
+            
+            <div class="symptom-buttons">
+              <button type="button" 
+                      class="symptom-btn no-change"
+                      [class.active]="!ex.worsened"
+                      (click)="updateExerciseSymptom(i, false)">
+                <span class="emoji">😊</span>
+                <span>No change</span>
+              </button>
+              
+              <button type="button" 
+                      class="symptom-btn worsened"
+                      [class.active]="ex.worsened"
+                      (click)="updateExerciseSymptom(i, true, 3)">
+                <span class="emoji">😰</span>
+                <span>Worsened</span>
+              </button>
+            </div>
+
+            <div class="severity-input" *ngIf="ex.worsened">
+              <label>Severity (1-9)</label>
+              <input type="range" min="1" max="9"
+                     [value]="ex.severity"
+                     (input)="updateExerciseSymptom(i, true, +$any($event.target).value)" />
+              <div class="severity-value">{{ ex.severity }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-medium secondary" (click)="cancelEdit()">
+          Cancel
+        </button>
+        <button type="button" class="btn-medium primary" (click)="saveManualEntry()">
+          {{ editMode() ? 'Update' : 'Save Entry' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Form (replaces all other content when editing) -->
+  <div class="card manual-entry-card edit-mode-card" *ngIf="editMode()">
+    <div class="card-title">
+      <span class="emoji">✏️</span>
+      <h3>Edit Exercise Data</h3>
+    </div>
+    <p class="manual-subtitle">Update your data for {{ s.date }}</p>
+
+    <div class="manual-form">
+      <div class="form-group">
+        <label>Baseline Symptoms (0-10)</label>
+        <input type="range" min="0" max="10"
+               [value]="manualBaseline()"
+               (input)="manualBaseline.set(+$any($event.target).value)" />
+        <div class="value-display">
+          <span class="value-number">{{ manualBaseline() }}</span>
+          <span class="value-label">/10</span>
+        </div>
+      </div>
+
+      <div class="exercises-section">
+        <h4 class="section-label">Exercise Symptoms</h4>
+        <div class="exercise-input-list">
+          <div class="exercise-input-card" *ngFor="let ex of manualExercises(); let i = index">
+            <div class="exercise-input-header">
+              <span class="exercise-number">{{ i + 1 }}</span>
+              <h5>{{ ex.name }}</h5>
+            </div>
+            
+            <div class="symptom-buttons">
+              <button type="button" 
+                      class="symptom-btn no-change"
+                      [class.active]="!ex.worsened"
+                      (click)="updateExerciseSymptom(i, false)">
+                <span class="emoji">😊</span>
+                <span>No change</span>
+              </button>
+              
+              <button type="button" 
+                      class="symptom-btn worsened"
+                      [class.active]="ex.worsened"
+                      (click)="updateExerciseSymptom(i, true, 3)">
+                <span class="emoji">😰</span>
+                <span>Worsened</span>
+              </button>
+            </div>
+
+            <div class="severity-input" *ngIf="ex.worsened">
+              <label>Severity (1-9)</label>
+              <input type="range" min="1" max="9"
+                     [value]="ex.severity"
+                     (input)="updateExerciseSymptom(i, true, +$any($event.target).value)" />
+              <div class="severity-value">{{ ex.severity }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-medium secondary" (click)="cancelEdit()">
+          Cancel
+        </button>
+        <button type="button" class="btn-medium primary" (click)="saveManualEntry()">
+          Update
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card baseline-card" *ngIf="!editMode()">
     <div class="card-title">
       <span class="emoji">🧠</span>
       <h3>Baseline Symptoms</h3>
+      <div class="spacer"></div>
+      <button type="button" class="btn-small secondary" (click)="startEditMode()" *ngIf="!isFutureDate() && hasAnyResults()">
+        <span>✏️</span>
+        <span>Edit</span>
+      </button>
     </div>
     <div class="baseline-display">
       <div class="baseline-value">
@@ -20,7 +183,7 @@
     </div>
   </div>
 
-  <div class="card trend-card">
+  <div class="card trend-card" *ngIf="!editMode()">
     <div class="card-title">
       <span class="emoji">📈</span>
       <h3>14-Day Baseline Trend</h3>
@@ -31,7 +194,7 @@
     </div>
   </div>
 
-  <div class="exercises-section">
+  <div class="exercises-section" *ngIf="!editMode()">
     <h3 class="section-title">
       <span class="emoji">💪</span>
       Exercises Completed
@@ -72,4 +235,94 @@
   </div>
 </section>
 
+<ng-template #noSession>
+  <section class="day-detail fade-in no-data">
+    <div class="card empty-state-card">
+      <div class="emoji-icon">📭</div>
+      <h2>No Data for This Day</h2>
+      <p class="empty-message">
+        <span *ngIf="date > todayIsoDate()">This date is in the future.</span>
+        <span *ngIf="date <= todayIsoDate()">No exercises recorded for {{ date }}.</span>
+      </p>
+      <div class="empty-actions">
+        <button type="button" class="btn-medium primary" (click)="goToStart()" *ngIf="date === todayIsoDate()">
+          <span>Start Today's Exercises</span>
+          <span class="arrow">→</span>
+        </button>
+        <button type="button" class="btn-medium primary" (click)="toggleManualEntry()" *ngIf="date !== todayIsoDate() && date <= todayIsoDate()">
+          <span>📝</span>
+          <span>{{ showManualEntry() ? 'Cancel' : 'Add Previous Exercise' }}</span>
+        </button>
+      </div>
+    </div>
 
+    <!-- Manual Entry Form (shown when no session exists) -->
+    <div class="card manual-entry-card" *ngIf="showManualEntry()">
+      <div class="card-title">
+        <span class="emoji">✍️</span>
+        <h3>Add Exercise Data</h3>
+      </div>
+      <p class="manual-subtitle">Record what you did on {{ date }}</p>
+
+      <div class="manual-form">
+        <div class="form-group">
+          <label>Baseline Symptoms (0-10)</label>
+          <input type="range" min="0" max="10"
+                 [value]="manualBaseline()"
+                 (input)="manualBaseline.set(+$any($event.target).value)" />
+          <div class="value-display">
+            <span class="value-number">{{ manualBaseline() }}</span>
+            <span class="value-label">/10</span>
+          </div>
+        </div>
+
+        <div class="exercises-section">
+          <h4 class="section-label">Exercise Symptoms</h4>
+          <div class="exercise-input-list">
+            <div class="exercise-input-card" *ngFor="let ex of manualExercises(); let i = index">
+              <div class="exercise-input-header">
+                <span class="exercise-number">{{ i + 1 }}</span>
+                <h5>{{ ex.name }}</h5>
+              </div>
+              
+              <div class="symptom-buttons">
+                <button type="button" 
+                        class="symptom-btn no-change"
+                        [class.active]="!ex.worsened"
+                        (click)="updateExerciseSymptom(i, false)">
+                  <span class="emoji">😊</span>
+                  <span>No change</span>
+                </button>
+                
+                <button type="button" 
+                        class="symptom-btn worsened"
+                        [class.active]="ex.worsened"
+                        (click)="updateExerciseSymptom(i, true, 3)">
+                  <span class="emoji">😰</span>
+                  <span>Worsened</span>
+                </button>
+              </div>
+
+              <div class="severity-input" *ngIf="ex.worsened">
+                <label>Severity (1-9)</label>
+                <input type="range" min="1" max="9"
+                       [value]="ex.severity"
+                       (input)="updateExerciseSymptom(i, true, +$any($event.target).value)" />
+                <div class="severity-value">{{ ex.severity }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-medium secondary" (click)="cancelEdit()">
+            Cancel
+          </button>
+          <button type="button" class="btn-medium primary" (click)="saveManualEntry()">
+            {{ editMode() ? 'Update' : 'Save Entry' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</ng-template>

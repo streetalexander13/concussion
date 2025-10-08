@@ -17,6 +17,7 @@
       <div class="day-card" *ngFor="let d of daysInMonth(); let i = index" 
            [routerLink]="['/day', d.date]"
            [class.completed]="d.completed"
+           [class.future]="isFutureDate(d.date)"
            [style.animation-delay.ms]="i * 30">
         <div class="date-number">{{ d.date.slice(-2) }}</div>
         <div class="status-badge" [class.done]="d.completed">

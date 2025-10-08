@@ -48,6 +48,63 @@
   margin-top: 0.25rem;
 }
 
+/* Quick Actions */
+.quick-actions {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+  color: var(--text);
+}
+
+.action-btn:hover {
+  border-color: var(--primary);
+  background: rgba(99, 102, 241, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+
+.action-btn .btn-icon {
+  font-size: 1.25rem;
+}
+
+/* Info Banner */
+.info-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+  border: 2px solid rgba(99, 102, 241, 0.3);
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.info-banner .emoji {
+  font-size: 1.5rem;
+}
+
+.info-banner p {
+  margin: 0;
+  color: var(--text);
+  font-weight: 600;
+}
+
 .calendar-container {
   margin-bottom: 2rem;
 }
@@ -67,7 +124,7 @@
   border: 2px solid transparent;
   animation: fadeIn 0.4s ease-out backwards;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .day-card::before {
@@ -91,6 +148,61 @@
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
   border-color: var(--primary);
+}
+
+.day-card.clickable {
+  border-color: rgba(99, 102, 241, 0.4);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.day-card.clickable:hover {
+  border-color: var(--primary);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.day-card.future {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.day-card.future:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: transparent;
+}
+
+/* Edit Button */
+.edit-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+  z-index: 10;
+}
+
+.day-card:hover .edit-btn {
+  opacity: 1;
+}
+
+.edit-btn:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  transform: scale(1.1);
+}
+
+.edit-btn:hover span {
+  filter: brightness(0) invert(1);
 }
 
 .date-number {
