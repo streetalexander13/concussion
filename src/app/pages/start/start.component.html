@@ -75,6 +75,12 @@
       <app-exercise-animation [exerciseId]="currentExercise()?.id || ''"></app-exercise-animation>
       
       <div class="prep-note">Please take a comfortable seated position</div>
+      <div class="audio-note">
+        <small>📢 You'll hear countdown beeps when you start</small>
+        <button type="button" class="test-audio-btn" (click)="testAudio()">
+          🔊 Test Sound
+        </button>
+      </div>
       <div class="action-buttons">
         <button type="button" class="primary btn-large" (click)="beginExercise()">
           <span>Start Exercise</span>

@@ -168,27 +168,42 @@ export class MetronomeComponent implements OnDestroy {
       this.audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
     
-    // iOS requires audio to be unlocked with a user gesture
-    if (this.audioCtx.state === 'suspended') {
-      this.audioCtx.resume().then(() => {
-        this.isAudioUnlocked = true;
-        console.log('Audio context unlocked');
-      });
-    } else {
-      this.isAudioUnlocked = true;
-    }
+    console.log('Audio context state before unlock:', this.audioCtx.state);
     
-    // Play a silent sound to fully unlock on iOS
+    // iOS requires audio to be unlocked with a user gesture
+    // Play a short audible beep to unlock - iOS won't unlock with silent sound
     try {
       const osc = this.audioCtx.createOscillator();
       const gain = this.audioCtx.createGain();
-      gain.gain.value = 0;
+      
+      osc.type = 'sine';
+      osc.frequency.value = 440;
+      gain.gain.value = 0.0001;
+      
       osc.connect(gain);
       gain.connect(this.audioCtx.destination);
-      osc.start(this.audioCtx.currentTime);
-      osc.stop(this.audioCtx.currentTime + 0.01);
+      
+      const now = this.audioCtx.currentTime;
+      osc.start(now);
+      gain.gain.exponentialRampToValueAtTime(0.3, now + 0.001);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+      osc.stop(now + 0.06);
+      
+      console.log('Unlock beep played');
     } catch (e) {
-      console.log('Silent sound error:', e);
+      console.log('Unlock beep error:', e);
+    }
+    
+    if (this.audioCtx.state === 'suspended') {
+      this.audioCtx.resume().then(() => {
+        this.isAudioUnlocked = true;
+        console.log('Audio context resumed, state:', this.audioCtx?.state);
+      }).catch(err => {
+        console.error('Failed to resume audio context:', err);
+      });
+    } else {
+      this.isAudioUnlocked = true;
+      console.log('Audio context already running, state:', this.audioCtx.state);
     }
   }
 
@@ -248,7 +263,7 @@ export class MetronomeComponent implements OnDestroy {
       
       const now = this.audioCtx.currentTime;
       osc.start(now);
-      gain.gain.exponentialRampToValueAtTime(0.3, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.5, now + 0.01);
       gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
       osc.stop(now + 0.1);
     } catch (e) {
@@ -279,9 +294,11 @@ export class MetronomeComponent implements OnDestroy {
       
       const now = this.audioCtx.currentTime;
       osc.start(now);
-      gain.gain.exponentialRampToValueAtTime(0.4, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.7, now + 0.01);
       gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
       osc.stop(now + 0.2);
+      
+      console.log('Countdown beep played at', now);
     } catch (e) {
       console.log('Countdown beep error:', e);
     }
@@ -314,10 +331,12 @@ export class MetronomeComponent implements OnDestroy {
         
         const startTime = now + (i * 0.15);
         osc.start(startTime);
-        gain.gain.exponentialRampToValueAtTime(0.5, startTime + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.8, startTime + 0.01);
         gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.12);
         osc.stop(startTime + 0.15);
       }
+      
+      console.log('Start sound played at', now);
     } catch (e) {
       console.log('Start sound error:', e);
     }
@@ -353,10 +372,12 @@ export class MetronomeComponent implements OnDestroy {
         const startTime = now + (i * 0.12);
         const duration = i === frequencies.length - 1 ? 0.3 : 0.12;
         osc.start(startTime);
-        gain.gain.exponentialRampToValueAtTime(0.5, startTime + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.8, startTime + 0.01);
         gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration - 0.02);
         osc.stop(startTime + duration);
       }
+      
+      console.log('Finish sound played at', now);
     } catch (e) {
       console.log('Finish sound error:', e);
     }

@@ -263,8 +263,36 @@
   color: var(--primary);
   padding: 1rem;
   border-radius: 12px;
-  margin: 1.5rem 0;
+  margin: 1.5rem 0 0.5rem;
   font-weight: 600;
+}
+
+.audio-note {
+  color: var(--text-muted);
+  margin: 0.5rem 0 1rem;
+  font-size: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.test-audio-btn {
+  background: rgba(99, 102, 241, 0.1);
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0.25rem;
+}
+
+.test-audio-btn:hover {
+  background: var(--primary);
+  color: white;
+  transform: scale(1.05);
 }
 
 .action-buttons {

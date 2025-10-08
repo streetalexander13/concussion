@@ -315,6 +315,21 @@ export class StartComponent implements OnDestroy {
     this.showDosage.update(v => !v);
   }
 
+  testAudio() {
+    console.log('Testing audio...');
+    if (this.metronome) {
+      this.metronome.unlockAudio();
+      // Play test beep after a tiny delay
+      setTimeout(() => {
+        if (this.metronome) {
+          this.metronome.playCountdownBeep();
+        }
+      }, 100);
+    } else {
+      console.error('Metronome not available for test');
+    }
+  }
+
   ngOnDestroy() {
     // Clean up all intervals
     if (this.countdownInterval) {
