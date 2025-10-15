@@ -140,7 +140,8 @@ export class DataService {
     date: string,
     exerciseId: string,
     result: ExerciseResult,
-    advice?: string
+    advice?: string,
+    bpm?: number
   ): Promise<void> {
     const userId = this.currentUserId;
     if (!userId) return;
@@ -156,6 +157,10 @@ export class DataService {
         if (advice !== undefined) {
           updated.advice = advice;
         }
+        // Save the BPM used for this exercise
+        if (bpm !== undefined) {
+          updated.bpm = bpm;
+        }
         return updated;
       }
       return ex;
@@ -164,6 +169,61 @@ export class DataService {
     await updateDoc(doc(db, 'users', userId, 'sessions', date), {
       exercises: updatedExercises,
     });
+  }
+
+  // Get the last used BPM for a specific exercise
+  getLastUsedBpm(exerciseId: string): number | undefined {
+    const sessions = this.state().sessions;
+    
+    // Look through sessions in reverse chronological order
+    for (let i = sessions.length - 1; i >= 0; i--) {
+      const session = sessions[i];
+      const exercise = session.exercises.find(ex => ex.config.id === exerciseId);
+      
+      // If we found this exercise and it has a saved BPM, return it
+      if (exercise?.config.bpm !== undefined) {
+        return exercise.config.bpm;
+      }
+    }
+    
+    return undefined;
+  }
+
+  // Check if user should increase BPM based on symptom progression
+  shouldIncreaseBpm(exerciseId: string): { shouldIncrease: boolean; message?: string } {
+    const sessions = this.state().sessions;
+    
+    // Need at least 2 days of data
+    if (sessions.length < 2) {
+      return { shouldIncrease: false };
+    }
+    
+    // Get the last 2 sessions where this exercise was completed
+    const completedSessions = sessions
+      .filter(s => {
+        const ex = s.exercises.find(e => e.config.id === exerciseId);
+        return ex?.result !== undefined;
+      })
+      .slice(-2);
+    
+    if (completedSessions.length < 2) {
+      return { shouldIncrease: false };
+    }
+    
+    // Check if both days had no symptom worsening (0/10 or false)
+    const allNoWorsening = completedSessions.every(s => {
+      const ex = s.exercises.find(e => e.config.id === exerciseId);
+      return ex?.result && (!ex.result.worsened || ex.result.severity === 0);
+    });
+    
+    if (allNoWorsening) {
+      return {
+        shouldIncrease: true,
+        message: '🎉 Great progress! You\'ve had no symptoms for 2 days. Consider increasing speed by 5 BPM.'
+      };
+    }
+    
+    return { shouldIncrease: false };
   }
 
   async updateVorBpmForNextDay(currentBpm: number, adjustment: 'down5' | 'up5' | 'same'): Promise<void> {

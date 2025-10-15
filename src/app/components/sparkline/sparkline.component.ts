@@ -15,8 +15,9 @@ import { CommonModule } from '@angular/common';
       <div class="sparkline-wrapper">
         <!-- Y-axis scale -->
         <div class="y-axis">
-          <div class="y-tick" *ngFor="let tick of yAxisTicks()">
-            <span class="tick-label">{{ tick }}</span>
+          <div class="y-tick" *ngFor="let tick of yAxisTicks()" 
+               [class.hide-mobile]="!tick.showOnMobile">
+            <span class="tick-label">{{ tick.value }}</span>
           </div>
         </div>
         
@@ -28,12 +29,13 @@ import { CommonModule } from '@angular/common';
             <g class="grid">
               <line *ngFor="let tick of yAxisTicks(); let i = index" 
                 [attr.x1]="chartPadding" 
-                [attr.y1]="getYPosition(tick)" 
+                [attr.y1]="getYPosition(tick.value)" 
                 [attr.x2]="width - chartPadding" 
-                [attr.y2]="getYPosition(tick)"
+                [attr.y2]="getYPosition(tick.value)"
                 [attr.stroke]="i === 0 ? '#e2e8f0' : '#f1f5f9'"
                 stroke-width="1"
-                stroke-dasharray="4,4" />
+                stroke-dasharray="4,4"
+                [class.hide-mobile]="!tick.showOnMobile" />
             </g>
             
             <!-- Area fill under line -->
@@ -121,8 +123,12 @@ export class SparklineComponent {
 
   yAxisTicks = computed(() => {
     const ticks = [];
+    // Generate all ticks with a flag for mobile visibility
     for (let i = this.max; i >= this.min; i -= 2) {
-      ticks.push(i);
+      ticks.push({
+        value: i,
+        showOnMobile: i % 5 === 0 // Only show 0, 5, 10 on mobile
+      });
     }
     return ticks;
   });

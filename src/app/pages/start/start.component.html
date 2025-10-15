@@ -74,6 +74,28 @@
       
       <app-exercise-animation [exerciseId]="currentExercise()?.id || ''"></app-exercise-animation>
       
+      <!-- Show BPM recommendation if available -->
+      <div *ngIf="bpmRecommendation()" class="bpm-recommendation">
+        <p>{{ bpmRecommendation() }}</p>
+      </div>
+      
+      <!-- Show BPM controls if exercise has metronome -->
+      <div *ngIf="currentExercise()?.hasMetronome" class="bpm-preview">
+        <div class="bpm-preview-label">
+          <span>🎵</span>
+          <span>Metronome Speed</span>
+        </div>
+        <div class="bpm-controls-preview">
+          <button type="button" class="bpm-adjust-btn" (click)="adjustBpm(-5)">−</button>
+          <div class="bpm-info-preview">
+            <div class="bpm-value">{{ currentBpm() }}</div>
+            <div class="bpm-label">BPM</div>
+          </div>
+          <button type="button" class="bpm-adjust-btn" (click)="adjustBpm(5)">+</button>
+        </div>
+        <p class="bpm-hint">Adjust the speed to match your comfort level</p>
+      </div>
+      
       <div class="prep-note">Please take a comfortable seated position</div>
       <div class="audio-note">
         <small>📢 You'll hear countdown beeps when you start</small>

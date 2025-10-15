@@ -20,6 +20,11 @@ function toDateOnly(dateStr: string): Date {
 export class TrackComponent {
   sessions = computed(() => this.data.state().sessions);
   monthStart = signal(new Date());
+  
+  currentMonthName = computed(() => {
+    const d = new Date(this.monthStart());
+    return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  });
 
   constructor(private data: DataService, private router: Router, private schedule: ScheduleService) {}
 

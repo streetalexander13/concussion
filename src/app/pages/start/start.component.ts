@@ -29,6 +29,7 @@ export class StartComponent implements OnDestroy {
   currentBpm = signal(55);
   loading = signal(true);
   showDosage = signal(false);
+  bpmRecommendation = signal<string | null>(null);
 
   currentExercise = computed<ExerciseConfig | null>(() => {
     const s = this.session();
@@ -101,6 +102,24 @@ export class StartComponent implements OnDestroy {
     }
     
     await this.data.setBaseline(s.date, this.baseline());
+    
+    // Initialize BPM for the first exercise if it has metronome
+    const ex = this.currentExercise();
+    if (ex?.hasMetronome) {
+      // Try to use last used BPM, otherwise use exercise default or 55
+      const lastUsedBpm = this.data.getLastUsedBpm(ex.id);
+      const bpm = lastUsedBpm ?? ex.bpm ?? 55;
+      this.currentBpm.set(bpm);
+      
+      // Check if user should increase BPM based on progress
+      const recommendation = this.data.shouldIncreaseBpm(ex.id);
+      if (recommendation.shouldIncrease) {
+        this.bpmRecommendation.set(recommendation.message || null);
+      } else {
+        this.bpmRecommendation.set(null);
+      }
+    }
+    
     this.step.set('interstitial');
   }
 
@@ -173,8 +192,8 @@ export class StartComponent implements OnDestroy {
     this.isPaused.set(false);
     const ex = this.currentExercise();
     if (ex?.hasMetronome) {
-      const bpm = ex.bpm ?? 55;
-      this.currentBpm.set(bpm);
+      // Don't reset BPM here - it should already be set from interstitial screen or initial load
+      // Only turn on the metronome
       this.metronomeOn.set(true);
     }
     this.exerciseInterval = setInterval(() => {
@@ -261,7 +280,7 @@ export class StartComponent implements OnDestroy {
       const adj = nextBpm < userBpm ? 'down5' : nextBpm > userBpm ? 'up5' : 'same';
       await this.data.updateVorBpmForNextDay(userBpm, adj);
     }
-    await this.data.recordExerciseResult(s.date, ex.id, result, advice);
+    await this.data.recordExerciseResult(s.date, ex.id, result, advice, this.currentBpm());
     
     const nextIndex = this.currentExerciseIndex() + 1;
     if (nextIndex >= DEFAULT_EXERCISE_SEQUENCE.length) {
@@ -269,12 +288,48 @@ export class StartComponent implements OnDestroy {
       this.step.set('done');
     } else {
       this.currentExerciseIndex.set(nextIndex);
+      
+      // Initialize BPM for the next exercise if it has metronome
+      const nextEx = this.currentExercise();
+      if (nextEx?.hasMetronome) {
+        // Try to use last used BPM, otherwise use exercise default or 55
+        const lastUsedBpm = this.data.getLastUsedBpm(nextEx.id);
+        const bpm = lastUsedBpm ?? nextEx.bpm ?? 55;
+        this.currentBpm.set(bpm);
+        
+        // Check if user should increase BPM based on progress
+        const recommendation = this.data.shouldIncreaseBpm(nextEx.id);
+        if (recommendation.shouldIncrease) {
+          this.bpmRecommendation.set(recommendation.message || null);
+        } else {
+          this.bpmRecommendation.set(null);
+        }
+      }
+      
       this.step.set('interstitial');
     }
   }
 
   repeatExercise() {
     console.log('Repeat exercise');
+    
+    // Re-initialize BPM for the repeated exercise if it has metronome
+    const ex = this.currentExercise();
+    if (ex?.hasMetronome) {
+      // Try to use last used BPM, otherwise use exercise default or 55
+      const lastUsedBpm = this.data.getLastUsedBpm(ex.id);
+      const bpm = lastUsedBpm ?? ex.bpm ?? 55;
+      this.currentBpm.set(bpm);
+      
+      // Check if user should increase BPM based on progress
+      const recommendation = this.data.shouldIncreaseBpm(ex.id);
+      if (recommendation.shouldIncrease) {
+        this.bpmRecommendation.set(recommendation.message || null);
+      } else {
+        this.bpmRecommendation.set(null);
+      }
+    }
+    
     this.step.set('interstitial');
   }
 
@@ -294,7 +349,7 @@ export class StartComponent implements OnDestroy {
       worsened: false,
       severity: 0,
     };
-    await this.data.recordExerciseResult(s.date, ex.id, result, 'Skipped');
+    await this.data.recordExerciseResult(s.date, ex.id, result, 'Skipped', this.currentBpm());
 
     const nextIndex = this.currentExerciseIndex() + 1;
     if (nextIndex >= DEFAULT_EXERCISE_SEQUENCE.length) {
@@ -302,6 +357,24 @@ export class StartComponent implements OnDestroy {
       this.step.set('done');
     } else {
       this.currentExerciseIndex.set(nextIndex);
+      
+      // Initialize BPM for the next exercise if it has metronome
+      const nextEx = this.currentExercise();
+      if (nextEx?.hasMetronome) {
+        // Try to use last used BPM, otherwise use exercise default or 55
+        const lastUsedBpm = this.data.getLastUsedBpm(nextEx.id);
+        const bpm = lastUsedBpm ?? nextEx.bpm ?? 55;
+        this.currentBpm.set(bpm);
+        
+        // Check if user should increase BPM based on progress
+        const recommendation = this.data.shouldIncreaseBpm(nextEx.id);
+        if (recommendation.shouldIncrease) {
+          this.bpmRecommendation.set(recommendation.message || null);
+        } else {
+          this.bpmRecommendation.set(null);
+        }
+      }
+      
       this.step.set('interstitial');
     }
   }
