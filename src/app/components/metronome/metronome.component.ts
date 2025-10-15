@@ -141,6 +141,7 @@ export class MetronomeComponent implements OnDestroy {
   }
   
   @Input() set isPlaying(value: boolean) {
+    this._isPlaying = value;
     if (value) {
       this.start();
     } else {
@@ -154,8 +155,16 @@ export class MetronomeComponent implements OnDestroy {
   private interval?: number;
   private audioCtx?: AudioContext;
   private isAudioUnlocked = false;
+  private _isPlaying = false;
 
   constructor() {
+    // Watch for BPM changes and restart metronome if playing
+    effect(() => {
+      const currentBpm = this.bpm();
+      if (this._isPlaying && this.interval) {
+        this.start(); // Restart with new BPM
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -386,17 +395,13 @@ export class MetronomeComponent implements OnDestroy {
   increaseBpm() {
     const newBpm = Math.min(120, this.bpm() + 5);
     this.bpm.set(newBpm);
-    if (this.isPlaying) {
-      this.start();
-    }
+    // Effect will automatically restart metronome with new BPM
   }
 
   decreaseBpm() {
     const newBpm = Math.max(30, this.bpm() - 5);
     this.bpm.set(newBpm);
-    if (this.isPlaying) {
-      this.start();
-    }
+    // Effect will automatically restart metronome with new BPM
   }
 
   getCurrentBpm(): number {

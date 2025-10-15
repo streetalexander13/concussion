@@ -1,6 +1,11 @@
 /* Global Reset & Base Styles */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+html {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 :root {
   --primary: #6366f1;
   --primary-hover: #4f46e5;
@@ -233,6 +238,7 @@ input[type="time"]:focus, input[type="number"]:focus {
 body {
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
+  overflow-x: hidden; /* Prevent horizontal scrolling on mobile */
 }
 
 /* Safe area insets for notched devices */
