@@ -203,3 +203,6 @@ The app automatically migrates from localStorage (v2) to Firestore when a user l
 ✅ **Security** - Firebase authentication & rules protect data
 
 
+
+
+
