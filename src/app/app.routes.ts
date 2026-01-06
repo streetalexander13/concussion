@@ -7,6 +7,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/landing/landing.component').then(m => m.LandingComponent)
   },
   {
+    path: 'feedback',
+    loadComponent: () => import('./pages/feedback/feedback.component').then(m => m.FeedbackComponent)
+  },
+  {
     path: 'measurement',
     loadComponent: () => import('./pages/measurement/measurement.component').then(m => m.MeasurementComponent)
   },

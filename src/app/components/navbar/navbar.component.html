@@ -16,6 +16,12 @@
         <a routerLink="/measurement" routerLinkActive="active" class="nav-link">
           Try Demo
         </a>
+        <a routerLink="/feedback" routerLinkActive="active" class="nav-link">
+          Feedback
+        </a>
+        <a href="mailto:streetalexander13@gmail.com" class="nav-link">
+          Contact
+        </a>
         <a routerLink="/login" routerLinkActive="active" class="nav-link">
           Sign In
         </a>
@@ -31,6 +37,12 @@
         </a>
         <a routerLink="/track" routerLinkActive="active" class="nav-link">
           Track Progress
+        </a>
+        <a routerLink="/feedback" routerLinkActive="active" class="nav-link">
+          Feedback
+        </a>
+        <a href="mailto:streetalexander13@gmail.com" class="nav-link">
+          Contact
         </a>
         <div class="user-menu">
           <span class="user-name">👋 {{ userName() }}</span>
@@ -64,6 +76,16 @@
           <span class="link-icon">🎯</span>
           <span>Try Demo</span>
         </a>
+        <a routerLink="/feedback" routerLinkActive="active"
+           class="mobile-nav-link" (click)="closeMenu()">
+          <span class="link-icon">✍️</span>
+          <span>Feedback</span>
+        </a>
+        <a href="mailto:streetalexander13@gmail.com"
+           class="mobile-nav-link" (click)="closeMenu()">
+          <span class="link-icon">✉️</span>
+          <span>Contact</span>
+        </a>
         <a routerLink="/login" routerLinkActive="active" 
            class="mobile-nav-link" (click)="closeMenu()">
           <span class="link-icon">🔐</span>
@@ -91,6 +113,16 @@
            class="mobile-nav-link" (click)="closeMenu()">
           <span class="link-icon">📊</span>
           <span>Track Progress</span>
+        </a>
+        <a routerLink="/feedback" routerLinkActive="active"
+           class="mobile-nav-link" (click)="closeMenu()">
+          <span class="link-icon">✍️</span>
+          <span>Feedback</span>
+        </a>
+        <a href="mailto:streetalexander13@gmail.com"
+           class="mobile-nav-link" (click)="closeMenu()">
+          <span class="link-icon">✉️</span>
+          <span>Contact</span>
         </a>
         <button type="button" class="mobile-nav-link mobile-signout" (click)="signOut()">
           <span class="link-icon">👋</span>

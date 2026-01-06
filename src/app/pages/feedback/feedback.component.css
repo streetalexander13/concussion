@@ -1,0 +1,136 @@
+.feedback-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 22px 18px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.emoji-icon {
+  font-size: 26px;
+  margin-bottom: 8px;
+}
+
+h1 {
+  margin: 0 0 6px;
+  font-size: 22px;
+}
+
+.subtitle {
+  margin: 0 0 18px;
+  color: rgba(15, 23, 42, 0.75);
+  line-height: 1.5;
+}
+
+.inline-link {
+  color: rgba(15, 23, 42, 0.9);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.25);
+}
+
+.inline-link:hover {
+  border-bottom-color: rgba(15, 23, 42, 0.6);
+}
+
+.feedback-form {
+  display: grid;
+  gap: 14px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-group {
+  display: grid;
+  gap: 6px;
+}
+
+label {
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.8);
+}
+
+input,
+textarea {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  padding: 10px 12px;
+  font-size: 14px;
+  background: #ffffff;
+  color: #0f172a;
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input:focus,
+textarea:focus {
+  border-color: rgba(99, 102, 241, 0.6);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+}
+
+.error-message,
+.success-message {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+}
+
+.error-message {
+  background: rgba(239, 68, 68, 0.08);
+  color: rgba(239, 68, 68, 0.95);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.success-message {
+  background: rgba(34, 197, 94, 0.08);
+  color: rgba(34, 197, 94, 0.95);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.secondary-link {
+  font-size: 14px;
+  color: rgba(15, 23, 42, 0.8);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.2);
+}
+
+.secondary-link:hover {
+  border-bottom-color: rgba(15, 23, 42, 0.55);
+}
+
+.fine-print {
+  margin: 18px 0 0;
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.7);
+  line-height: 1.45;
+}
+
+@media (max-width: 720px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+
