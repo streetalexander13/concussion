@@ -8,8 +8,8 @@
     </app-metronome>
 
     <div class="progress-bar">
-      <div class="progress" [style.width.%]="(currentExerciseIndex() / 5) * 100"></div>
-      <div class="progress-text">{{ currentExerciseIndex() }} / 5 exercises</div>
+      <div class="progress" [style.width.%]="progressPercent()"></div>
+      <div class="progress-text">{{ progressLabel() }}</div>
     </div>
 
     <!-- Dosage Guidelines Section -->
@@ -96,7 +96,7 @@
         <p class="bpm-hint">Adjust the speed to match your comfort level</p>
       </div>
       
-      w<div class="prep-note">Please take a comfortable seated position</div>
+      <div class="prep-note">Please take a comfortable seated position</div>
       <div class="audio-note">
         <small>📢 You'll hear countdown beeps when you start</small>
         <button type="button" class="test-audio-btn" (click)="testAudio()">
@@ -135,7 +135,7 @@
             </defs>
             <circle cx="50" cy="50" r="45" class="timer-bg" />
             <circle cx="50" cy="50" r="45" class="timer-progress" 
-              [style.stroke-dashoffset]="282 * (1 - timer() / 30)" />
+              [style.stroke-dashoffset]="282 * (1 - timer() / currentDurationSeconds())" />
           </svg>
           <div class="timer-text">{{ timer() }}</div>
         </div>
@@ -215,11 +215,11 @@
       <p class="subtitle">You've completed today's exercises</p>
       <div class="completion-stats">
         <div class="stat">
-          <span class="stat-number">5</span>
+          <span class="stat-number">{{ totalExercises() }}</span>
           <span class="stat-label">Exercises</span>
         </div>
         <div class="stat">
-          <span class="stat-number">~3</span>
+          <span class="stat-number">~{{ plannedMinutes() }}</span>
           <span class="stat-label">Minutes</span>
         </div>
       </div>

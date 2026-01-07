@@ -18,6 +18,7 @@ import {
   AppState,
   DEFAULT_EXERCISE_SEQUENCE,
   DEFAULT_SETTINGS,
+  AppSettings,
   DaySession,
   ExerciseConfig,
   ExerciseResult,
@@ -27,6 +28,9 @@ import {
   StoredDaySession,
   hydrateSession,
   dehydrateSession,
+  ExercisePlanSettings,
+  ExerciseType,
+  getExerciseConfig,
 } from './models';
 
 @Injectable({ providedIn: 'root' })
@@ -56,11 +60,28 @@ export class DataService {
     });
   }
 
+  private mergeSettings(partial: any): AppSettings {
+    const src = partial ?? {};
+    return {
+      reminders: { ...DEFAULT_SETTINGS.reminders, ...(src.reminders ?? {}) },
+      personalization: { ...DEFAULT_SETTINGS.personalization, ...(src.personalization ?? {}) },
+      exercisePlan: { ...DEFAULT_SETTINGS.exercisePlan, ...(src.exercisePlan ?? {}) },
+    };
+  }
+
   private async loadUserData(userId: string) {
     try {
       // Load settings
       const settingsDoc = await getDoc(doc(db, 'users', userId, 'data', 'settings'));
-      const settings = settingsDoc.exists() ? settingsDoc.data() as any : DEFAULT_SETTINGS;
+      const settings = settingsDoc.exists()
+        ? this.mergeSettings(settingsDoc.data() as any)
+        : DEFAULT_SETTINGS;
+
+      // Apply settings immediately (sessions will follow via realtime listener)
+      this.stateSig.set({
+        settings,
+        sessions: this.stateSig().sessions ?? [],
+      });
 
       // Subscribe to sessions in real-time
       const sessionsRef = collection(db, 'users', userId, 'sessions');
@@ -75,7 +96,7 @@ export class DataService {
         });
 
         this.stateSig.set({
-          settings: settings,
+          settings: this.stateSig().settings,
           sessions: sessions,
         });
       });
@@ -106,17 +127,26 @@ export class DataService {
     if (existing) return existing;
 
     // Create new session
+    const planIds =
+      this.stateSig().settings.exercisePlan?.selectedExerciseIds?.length
+        ? this.stateSig().settings.exercisePlan.selectedExerciseIds
+        : DEFAULT_SETTINGS.exercisePlan.selectedExerciseIds;
+
     const created: DaySession = {
       date,
       baseline: 0,
       baselineRecordedAt: new Date(date + 'T12:00:00').toISOString(),
-      exercises: DEFAULT_EXERCISE_SEQUENCE.map(e => {
-        const cfg = { ...e } as ExerciseConfig;
-        if (cfg.id === 'vor_lr') {
-          cfg.bpm = this.stateSig().settings.personalization.vorDefaultBpm;
-        }
-        return { config: cfg };
-      }),
+      exercises: planIds
+        .map((id) => {
+          const base = getExerciseConfig(id);
+          if (!base) return null;
+          const cfg = { ...base } as ExerciseConfig;
+          if (cfg.id === 'vor_lr') {
+            cfg.bpm = this.stateSig().settings.personalization.vorDefaultBpm;
+          }
+          return { config: cfg };
+        })
+        .filter((v): v is { config: ExerciseConfig } => v !== null),
     };
 
     // Save to Firestore in lightweight format
@@ -289,6 +319,36 @@ export class DataService {
     };
 
     await setDoc(settingsRef, updatedSettings);
+  }
+
+  async updateExercisePlan(plan: ExercisePlanSettings): Promise<void> {
+    const userId = this.currentUserId;
+    if (!userId) return;
+
+    const settingsRef = doc(db, 'users', userId, 'data', 'settings');
+    const settingsDoc = await getDoc(settingsRef);
+
+    const currentSettings = settingsDoc.exists()
+      ? this.mergeSettings(settingsDoc.data())
+      : DEFAULT_SETTINGS;
+
+    const updatedSettings: AppSettings = {
+      ...currentSettings,
+      exercisePlan: {
+        ...currentSettings.exercisePlan,
+        hasCompletedOnboarding: plan.hasCompletedOnboarding,
+        // Ensure stored IDs are valid ExerciseType values at compile-time.
+        selectedExerciseIds: [...(plan.selectedExerciseIds as ExerciseType[])],
+      },
+    };
+
+    await setDoc(settingsRef, updatedSettings);
+
+    // Keep app state in sync without requiring a full reload.
+    this.stateSig.set({
+      settings: updatedSettings,
+      sessions: this.stateSig().sessions,
+    });
   }
 
   getRecentExerciseSeverities(exerciseId: string, limit: number): number[] {

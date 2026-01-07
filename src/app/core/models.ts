@@ -1,4 +1,15 @@
-export type ExerciseType = 'saccades' | 'vor_lr' | 'vor_ud' | 'vms' | 'convergence';
+export type ExerciseType =
+  | 'saccades'
+  | 'vor_lr'
+  | 'vor_ud'
+  | 'vms'
+  | 'convergence'
+  | 'neck_chin_tucks_left'
+  | 'neck_chin_tucks_right'
+  | 'neck_head_turns_left'
+  | 'neck_head_turns_right'
+  | 'neck_side_tilts_left'
+  | 'neck_side_tilts_right';
 
 export interface ExerciseConfig {
   id: ExerciseType;
@@ -59,9 +70,15 @@ export interface PersonalizationSettings {
   vorDefaultBpm: number; // base bpm for VOR
 }
 
+export interface ExercisePlanSettings {
+  hasCompletedOnboarding: boolean;
+  selectedExerciseIds: ExerciseType[]; // ordered
+}
+
 export interface AppSettings {
   reminders: ReminderSettings;
   personalization: PersonalizationSettings;
+  exercisePlan: ExercisePlanSettings;
 }
 
 export interface AppState {
@@ -81,7 +98,7 @@ export function hydrateSession(stored: StoredDaySession): DaySession {
     baseline: stored.baseline,
     baselineRecordedAt: stored.baselineAt,
     exercises: stored.exercises.map(ex => {
-      const baseConfig = DEFAULT_EXERCISE_SEQUENCE.find(c => c.id === ex.id);
+      const baseConfig = getExerciseConfig(ex.id);
       if (!baseConfig) {
         throw new Error(`Unknown exercise ID: ${ex.id}`);
       }
@@ -105,7 +122,7 @@ export function dehydrateSession(session: DaySession): StoredDaySession {
     baseline: session.baseline,
     baselineAt: session.baselineRecordedAt,
     exercises: session.exercises.map(ex => {
-      const baseConfig = DEFAULT_EXERCISE_SEQUENCE.find(c => c.id === ex.config.id);
+      const baseConfig = getExerciseConfig(ex.config.id);
       const storedEx: StoredExerciseSession = {
         id: ex.config.id,
       };
@@ -140,6 +157,12 @@ export const DEFAULT_SETTINGS: AppSettings = {
   },
   personalization: {
     vorDefaultBpm: 55,
+  },
+  exercisePlan: {
+    // Default selection is the 5 core audiovestibular exercises, but we still
+    // require users to confirm via onboarding.
+    hasCompletedOnboarding: false,
+    selectedExerciseIds: ['saccades', 'vor_lr', 'vor_ud', 'vms', 'convergence'],
   },
 };
 
@@ -188,6 +211,66 @@ export const DEFAULT_EXERCISE_SEQUENCE: ExerciseConfig[] = [
     hasMetronome: false,
   },
 ];
+
+export const NECK_EXERCISE_SEQUENCE: ExerciseConfig[] = [
+  {
+    id: 'neck_chin_tucks_left',
+    title: 'Neck: Chin Tucks (Left)',
+    description: 'Gently tuck your chin straight back (like making a double chin).',
+    instruction: 'Slow, controlled reps. Keep shoulders relaxed.',
+    durationSeconds: 30,
+    hasMetronome: false,
+  },
+  {
+    id: 'neck_chin_tucks_right',
+    title: 'Neck: Chin Tucks (Right)',
+    description: 'Gently tuck your chin straight back (like making a double chin).',
+    instruction: 'Slow, controlled reps. Keep shoulders relaxed.',
+    durationSeconds: 30,
+    hasMetronome: false,
+  },
+  {
+    id: 'neck_head_turns_left',
+    title: 'Neck: Head Turns (Left)',
+    description: 'Turn your head slowly to look over your left shoulder, then return to center.',
+    instruction: 'Move within a comfortable range. Avoid sharp pain.',
+    durationSeconds: 30,
+    hasMetronome: false,
+  },
+  {
+    id: 'neck_head_turns_right',
+    title: 'Neck: Head Turns (Right)',
+    description: 'Turn your head slowly to look over your right shoulder, then return to center.',
+    instruction: 'Move within a comfortable range. Avoid sharp pain.',
+    durationSeconds: 30,
+    hasMetronome: false,
+  },
+  {
+    id: 'neck_side_tilts_left',
+    title: 'Neck: Side Tilts (Left)',
+    description: 'Gently tilt your left ear toward your left shoulder, then return to center.',
+    instruction: 'Keep shoulders down. Move slowly and comfortably.',
+    durationSeconds: 30,
+    hasMetronome: false,
+  },
+  {
+    id: 'neck_side_tilts_right',
+    title: 'Neck: Side Tilts (Right)',
+    description: 'Gently tilt your right ear toward your right shoulder, then return to center.',
+    instruction: 'Keep shoulders down. Move slowly and comfortably.',
+    durationSeconds: 30,
+    hasMetronome: false,
+  },
+];
+
+export const ALL_EXERCISES: ExerciseConfig[] = [
+  ...DEFAULT_EXERCISE_SEQUENCE,
+  ...NECK_EXERCISE_SEQUENCE,
+];
+
+export function getExerciseConfig(id: ExerciseType): ExerciseConfig | undefined {
+  return ALL_EXERCISES.find(e => e.id === id);
+}
 
 export function computeNextVorBpm(
   recentSeverities: number[],

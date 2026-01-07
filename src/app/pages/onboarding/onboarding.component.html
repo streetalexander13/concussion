@@ -1,0 +1,118 @@
+<section class="onboarding">
+  <div class="card fade-in">
+    <div class="emoji-icon">✅</div>
+    <h1>Choose your plan</h1>
+    <p class="subtitle">
+      This app is built around <strong>audiovestibular rehabilitation</strong> (a type of physio often used for dizziness,
+      balance, and visual/vestibular symptoms). For some people it can help symptoms associated with
+      <strong>post-concussion syndrome</strong>.
+    </p>
+    <p class="subtitle">
+      Pick the exercises you want to do. You can keep it simple and start with the core set.
+    </p>
+
+    <div class="section">
+      <div class="section-header">
+        <h2>Core audiovestibular exercises</h2>
+        <div class="section-actions">
+          <button type="button" class="link-btn" (click)="toggleAllCore(true)">Select all</button>
+          <span class="dot">•</span>
+          <button type="button" class="link-btn" (click)="toggleAllCore(false)">Clear</button>
+        </div>
+      </div>
+
+      <label class="check">
+        <input type="checkbox" [checked]="saccades()" (change)="saccades.set($any($event.target).checked)" />
+        <span class="check-label">
+          <span class="check-title">Saccades</span>
+          <span class="check-desc">Eye movement training</span>
+        </span>
+      </label>
+
+      <label class="check">
+        <input type="checkbox" [checked]="vorLR()" (change)="vorLR.set($any($event.target).checked)" />
+        <span class="check-label">
+          <span class="check-title">VOR (Left ↔ Right)</span>
+          <span class="check-desc">Vestibulo-ocular reflex training</span>
+        </span>
+      </label>
+
+      <label class="check">
+        <input type="checkbox" [checked]="vorUD()" (change)="vorUD.set($any($event.target).checked)" />
+        <span class="check-label">
+          <span class="check-title">VOR (Up ↕ Down)</span>
+          <span class="check-desc">Vestibulo-ocular reflex training</span>
+        </span>
+      </label>
+
+      <label class="check">
+        <input type="checkbox" [checked]="vms()" (change)="vms.set($any($event.target).checked)" />
+        <span class="check-label">
+          <span class="check-title">VMS</span>
+          <span class="check-desc">Motion sensitivity training</span>
+        </span>
+      </label>
+
+      <label class="check">
+        <input type="checkbox" [checked]="convergence()" (change)="convergence.set($any($event.target).checked)" />
+        <span class="check-label">
+          <span class="check-title">Convergence</span>
+          <span class="check-desc">Near focus training</span>
+        </span>
+      </label>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <h2>Optional neck add-ons</h2>
+        <p class="section-subtitle">Each side/direction is timed for 30 seconds.</p>
+      </div>
+
+      <label class="check">
+        <input type="checkbox" [checked]="neck().chinTucks" (change)="updateNeck({ chinTucks: $any($event.target).checked })" />
+        <span class="check-label">
+          <span class="check-title">Chin tucks</span>
+          <span class="check-desc">30s each side/direction</span>
+        </span>
+      </label>
+
+      <label class="check">
+        <input type="checkbox" [checked]="neck().headTurns" (change)="updateNeck({ headTurns: $any($event.target).checked })" />
+        <span class="check-label">
+          <span class="check-title">Head turns (rotations)</span>
+          <span class="check-desc">30s left + 30s right</span>
+        </span>
+      </label>
+
+      <label class="check">
+        <input type="checkbox" [checked]="neck().sideTilts" (change)="updateNeck({ sideTilts: $any($event.target).checked })" />
+        <span class="check-label">
+          <span class="check-title">Side tilts (ear-to-shoulder)</span>
+          <span class="check-desc">30s left + 30s right</span>
+        </span>
+      </label>
+    </div>
+
+    <div class="error-message" *ngIf="error()">
+      <span>⚠️</span>
+      <span>{{ error() }}</span>
+    </div>
+
+    <div class="actions">
+      <div class="selected-count">
+        Selected: <strong>{{ selectedIds().length }}</strong>
+      </div>
+      <button type="button" class="primary btn-large" (click)="saveAndContinue()" [disabled]="saving()">
+        <span *ngIf="!saving()">Save & Continue</span>
+        <span *ngIf="saving()">Saving...</span>
+      </button>
+    </div>
+
+    <p class="footer-note">
+      <span class="emoji">⚠️</span>
+      This app is designed to supplement professional medical care. Always consult your healthcare provider.
+    </p>
+  </div>
+</section>
+
+

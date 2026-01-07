@@ -2,7 +2,7 @@ import { Component, computed, effect, signal, ViewChild, OnDestroy } from '@angu
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { DataService } from '../../core/data.service';
-import { DaySession, DEFAULT_EXERCISE_SEQUENCE, ExerciseConfig, computeNextVorBpm, todayIsoDate } from '../../core/models';
+import { DaySession, ExerciseConfig, computeNextVorBpm, todayIsoDate } from '../../core/models';
 import { MetronomeComponent } from '../../components/metronome/metronome.component';
 import { ExerciseAnimationComponent } from '../../components/exercise-animation/exercise-animation.component';
 
@@ -30,6 +30,7 @@ export class StartComponent implements OnDestroy {
   loading = signal(true);
   showDosage = signal(false);
   bpmRecommendation = signal<string | null>(null);
+  private hasInitializedSession = false;
 
   currentExercise = computed<ExerciseConfig | null>(() => {
     const s = this.session();
@@ -38,13 +39,46 @@ export class StartComponent implements OnDestroy {
     return s.exercises[i]?.config ?? null;
   });
 
+  totalExercises = computed<number>(() => this.session()?.exercises.length ?? 0);
+  currentDurationSeconds = computed<number>(() => this.currentExercise()?.durationSeconds ?? 30);
+  progressPercent = computed<number>(() => {
+    const total = this.totalExercises();
+    if (total <= 0) return 0;
+    if (this.step() === 'done') return 100;
+    return Math.max(0, Math.min(100, (this.currentExerciseIndex() / total) * 100));
+  });
+  progressLabel = computed<string>(() => {
+    const total = this.totalExercises();
+    if (total <= 0) return '';
+    if (this.step() === 'done') return `${total} / ${total} exercises`;
+    const current = Math.min(this.currentExerciseIndex() + 1, total);
+    return `${current} / ${total} exercises`;
+  });
+  totalPlannedSeconds = computed<number>(() => {
+    const s = this.session();
+    if (!s) return 0;
+    return s.exercises.reduce((sum, ex) => sum + (ex.config.durationSeconds ?? 30), 0);
+  });
+  plannedMinutes = computed<number>(() => Math.max(1, Math.round(this.totalPlannedSeconds() / 60)));
+
   constructor(private data: DataService, private router: Router) {
-    // Initialize session asynchronously
-    this.initSession();
-    
     // Keep session in sync with data changes using allowSignalWrites
     effect(() => {
       const state = this.data.state();
+
+      // Route users who haven't chosen a plan yet
+      if (!state.settings.exercisePlan?.hasCompletedOnboarding) {
+        this.loading.set(false);
+        this.router.navigate(['/onboarding']);
+        return;
+      }
+
+      // Initialize session once onboarding is complete
+      if (!this.hasInitializedSession) {
+        this.hasInitializedSession = true;
+        this.initSession();
+      }
+
       const today = state.sessions.find(s => s.date === todayIsoDate());
       if (today) {
         this.session.set(today);
@@ -151,7 +185,7 @@ export class StartComponent implements OnDestroy {
     }
     
     this.countdown.set(3);
-    this.timer.set(30); // Reset timer
+    this.timer.set(this.currentDurationSeconds()); // Reset timer for this exercise
     
     // Play countdown beep immediately for 3
     if (this.metronome) {
@@ -188,7 +222,7 @@ export class StartComponent implements OnDestroy {
   private countdownInterval: any;
 
   private startTimer() {
-    this.timer.set(30);
+    this.timer.set(this.currentDurationSeconds());
     this.isPaused.set(false);
     const ex = this.currentExercise();
     if (ex?.hasMetronome) {
@@ -283,7 +317,7 @@ export class StartComponent implements OnDestroy {
     await this.data.recordExerciseResult(s.date, ex.id, result, advice, this.currentBpm());
     
     const nextIndex = this.currentExerciseIndex() + 1;
-    if (nextIndex >= DEFAULT_EXERCISE_SEQUENCE.length) {
+    if (nextIndex >= (s.exercises.length ?? 0)) {
       await this.data.markCompleted(s.date);
       this.step.set('done');
     } else {
@@ -352,7 +386,7 @@ export class StartComponent implements OnDestroy {
     await this.data.recordExerciseResult(s.date, ex.id, result, 'Skipped', this.currentBpm());
 
     const nextIndex = this.currentExerciseIndex() + 1;
-    if (nextIndex >= DEFAULT_EXERCISE_SEQUENCE.length) {
+    if (nextIndex >= (s.exercises.length ?? 0)) {
       await this.data.markCompleted(s.date);
       this.step.set('done');
     } else {

@@ -1,0 +1,162 @@
+.onboarding {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 16px 44px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 22px 18px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.emoji-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+
+.subtitle {
+  margin: 0 0 12px;
+  color: rgba(15, 23, 42, 0.78);
+  line-height: 1.55;
+}
+
+.section {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  display: grid;
+  gap: 10px;
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.section-actions {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  color: rgba(15, 23, 42, 0.7);
+  font-size: 13px;
+}
+
+.dot {
+  opacity: 0.6;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  cursor: pointer;
+  color: rgba(15, 23, 42, 0.85);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.25);
+}
+
+.link-btn:hover {
+  border-bottom-color: rgba(15, 23, 42, 0.6);
+}
+
+.section-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.7);
+}
+
+.check {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(15, 23, 42, 0.02);
+}
+
+.check input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+}
+
+.check-label {
+  display: grid;
+  gap: 2px;
+}
+
+.check-title {
+  font-weight: 700;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+.check-desc {
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.72);
+}
+
+.actions {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.selected-count {
+  font-size: 14px;
+  color: rgba(15, 23, 42, 0.8);
+}
+
+.error-message {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.08);
+  color: rgba(239, 68, 68, 0.95);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  margin-top: 12px;
+}
+
+.footer-note {
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.7);
+  line-height: 1.45;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.footer-note .emoji {
+  margin-top: 1px;
+}
+
+@media (max-width: 640px) {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+

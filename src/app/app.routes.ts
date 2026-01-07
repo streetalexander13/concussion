@@ -25,6 +25,11 @@ export const routes: Routes = [
     canActivate: [guestGuard]
   },
   {
+    path: 'onboarding',
+    loadComponent: () => import('./pages/onboarding/onboarding.component').then(m => m.OnboardingComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'start',
     loadComponent: () => import('./pages/start/start.component').then(m => m.StartComponent),
     canActivate: [authGuard]
