@@ -20,8 +20,6 @@ export class FeedbackComponent {
   success = signal(false);
   error = signal<string | null>(null);
 
-  contactEmail = 'streetalexander13@gmail.com';
-
   constructor(
     private feedback: FeedbackService,
     private router: Router,

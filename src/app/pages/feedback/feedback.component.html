@@ -3,9 +3,10 @@
     <div class="emoji-icon">✍️</div>
     <h1>Feedback</h1>
     <p class="subtitle">
-      Found a bug, have an idea, or want to say hi? Send a quick message here.
-      You can also email
-      <a class="inline-link" [href]="'mailto:' + contactEmail">{{ contactEmail }}</a>.
+        <p class="subtitle">
+            Hi — I’m a 23-year-old software engineer. I built this app to help my girlfriend with audiovestibular rehab for her concussion recovery, and I want to make it available to more people.
+            If you spot a bug or have an idea to improve it, I’d really appreciate your feedback. And if you’d like to support hosting costs, you can buy me a coffee using the button below
+
     </p>
 
     <form class="feedback-form" (ngSubmit)="submit()">
@@ -60,8 +61,7 @@
     </form>
 
     <p class="fine-print">
-      If sending fails (for example, if you’re not logged in), email works every time:
-      <a class="inline-link" [href]="'mailto:' + contactEmail">{{ contactEmail }}</a>.
+      If sending fails, please try again later.
     </p>
   </div>
 </section>

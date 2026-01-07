@@ -4,6 +4,8 @@
   <router-outlet />
 </main>
 
+<a class="feedback-fab" routerLink="/feedback" aria-label="Send feedback">Feedback</a>
+
 <footer class="site-footer">
   <div class="site-footer-inner">
     <div class="footer-top">
@@ -15,8 +17,7 @@
       />
 
       <div class="footer-links">
-        <a class="footer-link" href="mailto:streetalexander13@gmail.com">Contact</a>
-        <a class="footer-link" routerLink="/feedback">Feedback</a>
+        <a class="footer-link footer-link-strong" routerLink="/feedback">Leave feedback</a>
       </div>
     </div>
 
@@ -24,7 +25,21 @@
       If this tool helped you and you’d like to say thanks, your support helps cover hosting costs.
     </div>
 
-    <div id="bmc-button-container" class="bmc-button-container"></div>
+    <div class="support-actions">
+      <a
+        class="bmc-image-link"
+        href="https://www.buymeacoffee.com/streetalext"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img
+          class="bmc-image"
+          src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+          alt="Buy Me A Coffee"
+          loading="lazy"
+        />
+      </a>
+    </div>
   </div>
 </footer>
 

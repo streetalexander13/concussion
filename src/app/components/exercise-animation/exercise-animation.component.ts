@@ -114,6 +114,99 @@ import { CommonModule } from '@angular/common';
         <div class="moving-finger">👆</div>
         <div class="instruction">Move finger towards nose, stop at double vision</div>
       </div>
+
+      <!-- Neck: Chin tucks -->
+      <div *ngIf="exerciseId === 'neck_chin_tucks_left' || exerciseId === 'neck_chin_tucks_right'" class="neck-animation neck-chin-tucks">
+        <div class="person">
+          <div class="head neck-head chin-tuck">
+            <div class="eyes">
+              <div class="eye left">
+                <div class="pupil fixed"></div>
+              </div>
+              <div class="eye right">
+                <div class="pupil fixed"></div>
+              </div>
+            </div>
+          </div>
+          <div class="body"></div>
+        </div>
+        <div class="direction-badge">Chin tuck</div>
+        <div class="instruction">Gently tuck chin straight back (slow, controlled)</div>
+      </div>
+
+      <!-- Neck: Head turns (rotations) -->
+      <div *ngIf="exerciseId === 'neck_head_turns_left'" class="neck-animation neck-head-turns neck-left">
+        <div class="person">
+          <div class="head neck-head head-turn-left">
+            <div class="eyes">
+              <div class="eye left">
+                <div class="pupil fixed"></div>
+              </div>
+              <div class="eye right">
+                <div class="pupil fixed"></div>
+              </div>
+            </div>
+          </div>
+          <div class="body"></div>
+        </div>
+        <div class="direction-badge">← Left</div>
+        <div class="instruction">Turn head slowly to the left, then return to center</div>
+      </div>
+
+      <div *ngIf="exerciseId === 'neck_head_turns_right'" class="neck-animation neck-head-turns neck-right">
+        <div class="person">
+          <div class="head neck-head head-turn-right">
+            <div class="eyes">
+              <div class="eye left">
+                <div class="pupil fixed"></div>
+              </div>
+              <div class="eye right">
+                <div class="pupil fixed"></div>
+              </div>
+            </div>
+          </div>
+          <div class="body"></div>
+        </div>
+        <div class="direction-badge">Right →</div>
+        <div class="instruction">Turn head slowly to the right, then return to center</div>
+      </div>
+
+      <!-- Neck: Side tilts (ear-to-shoulder) -->
+      <div *ngIf="exerciseId === 'neck_side_tilts_left'" class="neck-animation neck-side-tilts neck-left">
+        <div class="person">
+          <div class="head neck-head side-tilt-left">
+            <div class="eyes">
+              <div class="eye left">
+                <div class="pupil fixed"></div>
+              </div>
+              <div class="eye right">
+                <div class="pupil fixed"></div>
+              </div>
+            </div>
+          </div>
+          <div class="body"></div>
+        </div>
+        <div class="direction-badge">← Left</div>
+        <div class="instruction">Tilt left ear toward left shoulder, then return to center</div>
+      </div>
+
+      <div *ngIf="exerciseId === 'neck_side_tilts_right'" class="neck-animation neck-side-tilts neck-right">
+        <div class="person">
+          <div class="head neck-head side-tilt-right">
+            <div class="eyes">
+              <div class="eye left">
+                <div class="pupil fixed"></div>
+              </div>
+              <div class="eye right">
+                <div class="pupil fixed"></div>
+              </div>
+            </div>
+          </div>
+          <div class="body"></div>
+        </div>
+        <div class="direction-badge">Right →</div>
+        <div class="instruction">Tilt right ear toward right shoulder, then return to center</div>
+      </div>
     </div>
   `,
   styles: [`
@@ -327,6 +420,78 @@ import { CommonModule } from '@angular/common';
       font-weight: 600;
       padding: 0 1rem;
       z-index: 10;
+    }
+
+    /* Neck animations */
+    .neck-animation .person {
+      position: relative;
+    }
+
+    .neck-head {
+      transform-origin: 50% 85%;
+    }
+
+    .direction-badge {
+      position: absolute;
+      top: 0.75rem;
+      left: 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: rgba(15, 23, 42, 0.7);
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      border-radius: 999px;
+      padding: 0.25rem 0.5rem;
+    }
+
+    .chin-tuck {
+      animation: chin-tuck 2.2s ease-in-out infinite;
+    }
+
+    @keyframes chin-tuck {
+      0%, 100% { transform: translateY(0) translateZ(0); }
+      45% { transform: translateY(2px) scale(0.98); }
+      55% { transform: translateY(2px) scale(0.98); }
+    }
+
+    .head-turn-left {
+      animation: head-turn-left 2.6s ease-in-out infinite;
+    }
+
+    .head-turn-right {
+      animation: head-turn-right 2.6s ease-in-out infinite;
+    }
+
+    @keyframes head-turn-left {
+      0%, 100% { transform: rotate(0deg); }
+      45% { transform: rotate(-22deg); }
+      55% { transform: rotate(-22deg); }
+    }
+
+    @keyframes head-turn-right {
+      0%, 100% { transform: rotate(0deg); }
+      45% { transform: rotate(22deg); }
+      55% { transform: rotate(22deg); }
+    }
+
+    .side-tilt-left {
+      animation: side-tilt-left 2.6s ease-in-out infinite;
+    }
+
+    .side-tilt-right {
+      animation: side-tilt-right 2.6s ease-in-out infinite;
+    }
+
+    @keyframes side-tilt-left {
+      0%, 100% { transform: rotate(0deg); }
+      45% { transform: rotate(-18deg); }
+      55% { transform: rotate(-18deg); }
+    }
+
+    @keyframes side-tilt-right {
+      0%, 100% { transform: rotate(0deg); }
+      45% { transform: rotate(18deg); }
+      55% { transform: rotate(18deg); }
     }
 
     @media (max-width: 640px) {
