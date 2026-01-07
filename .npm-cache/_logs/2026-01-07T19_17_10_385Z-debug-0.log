@@ -7,8 +7,8 @@
 6 silly config load:file:/Users/alexanderstreet/.nvm/versions/node/v22.21.1/etc/npmrc
 7 verbose title npm run build
 8 verbose argv "run" "build"
-9 verbose logfile logs-max:10 dir:/Users/alexanderstreet/development/ConcussionWebsite/concussion_recovery/.npm-cache/_logs/2026-01-07T19_14_34_216Z-
-10 verbose logfile /Users/alexanderstreet/development/ConcussionWebsite/concussion_recovery/.npm-cache/_logs/2026-01-07T19_14_34_216Z-debug-0.log
+9 verbose logfile logs-max:10 dir:/Users/alexanderstreet/development/ConcussionWebsite/concussion_recovery/.npm-cache/_logs/2026-01-07T19_17_10_385Z-
+10 verbose logfile /Users/alexanderstreet/development/ConcussionWebsite/concussion_recovery/.npm-cache/_logs/2026-01-07T19_17_10_385Z-debug-0.log
 11 silly logfile done cleaning log files
 12 verbose cwd /Users/alexanderstreet/development/ConcussionWebsite/concussion_recovery
 13 verbose os Darwin 23.6.0
