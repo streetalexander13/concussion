@@ -473,6 +473,25 @@
   margin: 0 auto;
 }
 
+.footer-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.bmc-image-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.bmc-image {
+  height: 60px;
+  width: 217px;
+  max-width: 100%;
+}
+
 /* Animations */
 @keyframes fadeIn {
   from {
